@@ -2,4 +2,5 @@ bot.py
 config.py
 tz/
 venv/
+*.db
 
