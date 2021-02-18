@@ -3,4 +3,6 @@ config.py
 tz/
 venv/
 *.db
+*.txt
+!requirements.txt
 

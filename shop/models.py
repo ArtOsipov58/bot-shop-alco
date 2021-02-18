@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(parent_dir))
 
 
 
+from datetime import datetime
 
 from sqlalchemy import (create_engine, Table, Column, Integer, Numeric, 
                         String, DateTime, ForeignKey) 
@@ -64,12 +65,32 @@ class User(Base):
     __tablename__ = 'user'
 
     user_id = Column(Integer, primary_key=True)
-    
+    first_name = Column(String(15), nullable=False)
+    phone = Column(String(15))
+
+    def __repr__(self):
+        return f'<User id={str(self.id)}, name={self.first_name}>'
+
+
+class ShoppingCart(Base):
+    __tablename__ = 'shopping_cart'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.user_id'))
+    created_date = Column(DateTime, default=datetime.now())
+
+
+class CatrItems(Base):
+    __tablename__ = 'cart_items'
+
+    id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey('product.id'))
+    quantity = Column(Integer)
+    created_date = Column(DateTime, default=datetime.now())
+    shopping_cart_id = Column(Integer, ForeignKey('shopping_cart.id'))
 
 
 
-class Cart(Base):
-    __tablename__ = 'cart'
 
 
 
