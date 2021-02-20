@@ -1,6 +1,9 @@
 import logging
 
+from sqlalchemy.orm import sessionmaker
+
 from shop.keyboard import *
+from shop.models import Category, engine, Product
 
 
 logging.basicConfig(
@@ -26,3 +29,20 @@ def select_category(update, context):
     update.message.reply_text(
         'Выберите категорию',
         reply_markup=get_cat_ikb())
+
+
+def select_product(update, context):
+    query = update.callback_query
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    # product = session.query(Product).filter_by(cat_id=int(query.data.split('_')[-1])).all()
+    category = session.query(Category).filter_by(id=int(query.data.split('_')[-1])).first()
+    query.message.reply_text(
+        f'Категория: <b>{category.name}</b>',
+        reply_markup=get_product_ikb(category.product_list)
+        )
+
+
+def get_product_cart(update, context):
+    query = update.callback_query
+    query.message.reply_text('Вот карточка товара')

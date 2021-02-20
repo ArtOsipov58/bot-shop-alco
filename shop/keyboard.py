@@ -21,10 +21,18 @@ def get_cat_ikb():
 
     ikb_list = list()
     for cat in session.query(Category).order_by(Category.order):
-        ikb_list.append(InlineKeyboardButton(cat.name, callback_data=cat.id))
+        ikb_list.append(InlineKeyboardButton(cat.name, callback_data=f'cat_{str(cat.id)}'))
     menu = build_menu(ikb_list, 3)
     return InlineKeyboardMarkup(menu)
 
+
+def get_product_ikb(product_list):
+    ikb_list = list()
+    for product in product_list:
+        ikb_list.append(InlineKeyboardButton(product.name, callback_data=f'prod_{str(product.id)}'))
+
+    menu = build_menu(ikb_list, 2)
+    return InlineKeyboardMarkup(menu)
 
 
 

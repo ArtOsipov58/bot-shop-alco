@@ -20,10 +20,6 @@ def import_price():
 
     # Добавляем новые категории (если есть)
     df = pd.read_excel('НОВАЯ выгрузка.xlsx')
-
-
-    # import ipdb; ipdb.set_trace()
-
     for index, row in df.iterrows():
         if row['Архивный'] == 'да':
             continue
@@ -67,12 +63,3 @@ def import_price():
             session.add(product)
 
     session.commit()
-
-
-
-
-import_price()
-
-# p = get_product_list()
-# import pprint
-# pprint.pprint(p)
