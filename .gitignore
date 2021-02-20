@@ -5,4 +5,6 @@ venv/
 *.db
 *.txt
 !requirements.txt
+*.csv
+*.xlsx
 

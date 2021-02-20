@@ -23,24 +23,10 @@ class Category(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(15), nullable=False)
 
-    subcat_list = relationship('SubCategory', back_populates='category')
+    product_list = relationship('Product', back_populates='category')
 
     def __repr__(self):
         return f'<Category {self.name}>'
-
-
-class SubCategory(Base):
-    __tablename__ = 'subcategory'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(15), nullable=False)
-    category_id = Column(Integer, ForeignKey('category.id'))
-
-    category = relationship('Category', back_populates='subcat_list')
-    product_list = relationship('Product', back_populates='subcategory')
-
-    def __repr__(self):
-        return f'<SubCategory {self.name}>'
 
 
 class Product(Base):
@@ -50,12 +36,9 @@ class Product(Base):
     name = Column(String(20), nullable=False)
     price = Column(Integer, nullable=False)
     image = Column(String(50))
-    subcat_id = Column(Integer, ForeignKey('subcategory.id'))
+    cat_id = Column(Integer, ForeignKey('category.id'))
 
-    subcategory = relationship(
-        'SubCategory', 
-        back_populates='product_list'
-        )
+    category = relationship('Category', back_populates='product_list')
 
     def __repr__(self):
         return f'<Product {self.name}>'
