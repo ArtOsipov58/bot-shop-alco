@@ -1,0 +1,5 @@
+btn_catalog = 'Каталог'
+btn_cart = 'Корзина'
+btn_help = 'Помощь'
+btn_chat = 'Онлай-чат'
+btn_call = 'Позвонить'

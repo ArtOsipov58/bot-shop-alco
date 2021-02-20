@@ -22,6 +22,7 @@ class Category(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(15), nullable=False)
+    order = Column(Integer)
 
     product_list = relationship('Product', back_populates='category')
 
@@ -35,6 +36,7 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(20), nullable=False)
     price = Column(Integer, nullable=False)
+    artikul = Column(String(20), unique=True)
     image = Column(String(50))
     cat_id = Column(Integer, ForeignKey('category.id'))
 

@@ -7,4 +7,7 @@ venv/
 !requirements.txt
 *.csv
 *.xlsx
+__pycache__/
+*.log
+
 
