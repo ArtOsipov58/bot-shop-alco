@@ -21,6 +21,7 @@ def get_main_menu():
 class Menu:
     def __init__(self):
         self.len_one_screen = 5
+        self.column_num = 1
 
     @staticmethod
     def _build_menu(buttons,
@@ -46,7 +47,6 @@ class Menu:
                 result_list.append(split_list)
         return result_list   # Список из списков
 
-
     @staticmethod
     def get_cat_ikb():
         Session = sessionmaker(bind=engine)
@@ -58,8 +58,6 @@ class Menu:
         menu = Menu._build_menu(ikb_list, 3)
         return InlineKeyboardMarkup(menu)
 
-
-
     @staticmethod
     def _get_ikb_list(product_list):
         ikb_list = list()
@@ -67,26 +65,19 @@ class Menu:
             ikb_list.append(InlineKeyboardButton(product.name, callback_data=f'prod_{str(product.id)}'))
         return ikb_list
 
-
-
-
-
     def get_product_ikb(self, product_list, screen_num=1):
         ikb_list = Menu._get_ikb_list(product_list)
-        screen_list = Menu._split_list(ikb_list, 5)
+        screen_list = Menu._split_list(ikb_list, self.len_one_screen)
         screen_dict = dict()
         for screen in screen_list:
             screen_dict[str(screen_list.index(screen) + 1)] = screen
 
         raw_menu = screen_dict[str(screen_num)]
-        menu = Menu._build_menu(raw_menu, 1)
-
-
-        # import ipdb; ipdb.set_trace()
-
+        menu = Menu._build_menu(raw_menu, self.column_num)
 
         if screen_num == 1:
-            menu.append([InlineKeyboardButton('>>>', callback_data=f'nav_{str(screen_num+1)}')])
+            if len(screen_list) > 1:
+                menu.append([InlineKeyboardButton('>>>', callback_data=f'nav_{str(screen_num+1)}')])
         elif 1 < screen_num < len(screen_dict):
 
             menu.append(
