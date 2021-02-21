@@ -59,6 +59,11 @@ class Menu:
         return InlineKeyboardMarkup(menu)
 
     @staticmethod
+    def cart_ikb(product):
+        keyboard = [[InlineKeyboardButton('<<< Назад', callback_data=f'back_to_product_list_{str(product.category.id)}')]]
+        return InlineKeyboardMarkup(keyboard)
+
+    @staticmethod
     def _get_ikb_list(product_list):
         ikb_list = list()
         for product in product_list:
@@ -90,6 +95,7 @@ class Menu:
                 )
         menu.append([InlineKeyboardButton('<<< Назад', callback_data='back')])
         return InlineKeyboardMarkup(menu)
+
 
 
 menu = Menu()

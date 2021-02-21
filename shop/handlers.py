@@ -15,7 +15,7 @@ logging.basicConfig(
 
 def start(update, context):
     update.message.reply_text(
-        'Стартовое сообщение...',
+        msg_start,
         reply_markup=get_main_menu())
 
 
@@ -27,15 +27,23 @@ def get_my_id(update, context):
 
 def select_category(update, context):
     query = update.callback_query
-    text = 'Выберите категорию'
     if query:
-        msg = query.message.reply_text(
-            text, 
+        chat_id = query.message.chat_id
+    else: chat_id = update.message.chat_id
+
+    text = 'Выберите категорию'
+    msg_id = context.user_data.get('msg_id')
+    if msg_id:
+        context.bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=msg_id,
+            text=text,
             reply_markup=menu.get_cat_ikb()
             )
     else:
-        msg = update.message.reply_text(
-            text,
+        msg = context.bot.send_message(
+            chat_id=chat_id,
+            text=text,
             reply_markup=menu.get_cat_ikb()
             )
     context.user_data['msg_id'] = msg.message_id
@@ -81,8 +89,15 @@ def navigate_in_category(update, context):
 
 def get_product_cart(update, context):
     query = update.callback_query
+    product_id = int(query.data.split('_')[-1])
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    product = session.query(Product).filter_by(id=product_id).first()
+
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        text='Вот карточка товара'
+        text=msg_cart(product),
+        reply_markup=menu.cart_ikb(product)
         )
