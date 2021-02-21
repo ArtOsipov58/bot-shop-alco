@@ -97,6 +97,7 @@ class Menu:
             menu.append(
                 [InlineKeyboardButton('<<<', callback_data=f'nav_{str(screen_num-1)}')]
                 )
+        menu.append([InlineKeyboardButton('<<< Назад', callback_data='back')])
         return InlineKeyboardMarkup(menu)
 
 

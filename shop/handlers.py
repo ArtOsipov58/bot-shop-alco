@@ -26,14 +26,25 @@ def get_my_id(update, context):
 
 
 def select_category(update, context):
-    msg = update.message.reply_text(
-        'Выберите категорию',
-        reply_markup=menu.get_cat_ikb()
-        )
+    query = update.callback_query
+    text = 'Выберите категорию'
+    if query:
+        msg = query.message.reply_text(
+            text, 
+            reply_markup=menu.get_cat_ikb()
+            )
+    else:
+        msg = update.message.reply_text(
+            text,
+            reply_markup=menu.get_cat_ikb()
+            )
     context.user_data['msg_id'] = msg.message_id
 
 
-def get_cat_list(update, context):
+def get_products_list(update, context):
+    ''' 
+    Получаем список продуктов
+    '''
     query = update.callback_query
     cat_id = int(query.data.split('_')[-1])
     Session = sessionmaker(bind=engine)
@@ -49,7 +60,10 @@ def get_cat_list(update, context):
         )
 
 
-def select_product(update, context):
+def navigate_in_category(update, context):
+    ''' 
+    Когда нажали кнопки <<< >>>
+    '''
     query = update.callback_query
     screen_num = int(query.data.split('_')[-1])
     Session = sessionmaker(bind=engine)
