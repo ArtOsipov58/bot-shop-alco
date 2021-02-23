@@ -1,3 +1,6 @@
+emoji_plus = '➕'
+emoji_minus = '➖'
+
 btn_catalog = 'Каталог'
 btn_cart = 'Корзина'
 btn_help = 'Помощь'
@@ -11,10 +14,3 @@ msg_start = '''Вас приветствует бот магазина XXX!
 🎁При заказе через бота действует скидка 10% '''
 
 
-def msg_cart(product):
-    text = f'''Просмотр товара в категории: {product.category.name}
-
-<b>{product.name}</b>
-
-<b>Цена:</b> {str(product.price)} руб.<a href="http://i.imgur.com/I86rTVl.jpg">&#8288;</a>'''
-    return text

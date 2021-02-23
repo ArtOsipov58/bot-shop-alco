@@ -18,6 +18,44 @@ def get_main_menu():
 
 
 
+class CartMenu:
+    def __init__(self, product, quantity=1):
+        self.product = product
+        self.quantity = quantity
+
+    @property
+    def _btn_get_sum_all(self):
+        sum_all = self.product.price * self.quantity
+        return f'{str(self.product.price)} * {str(self.quantity)} = {str(sum_all)} руб.'
+
+    @property
+    def add(self):
+        self.quantity += 1
+        self._btn_get_sum_all
+
+    @property
+    def minus(self):
+        if self.quantity > 1:
+            self.quantity -= 1
+            self._btn_get_sum_all
+            return True
+        else:
+            return False
+
+
+    def cart_ikb(self):
+        keyboard = [
+            [InlineKeyboardButton(self._btn_get_sum_all, callback_data='nothing')],
+
+            [InlineKeyboardButton(emoji_plus, callback_data='add'),
+             InlineKeyboardButton(emoji_minus, callback_data='minus')],
+
+            [InlineKeyboardButton('<<< Назад', callback_data=f'back_to_product_list_{str(self.product.category.id)}')]
+            ]
+        return InlineKeyboardMarkup(keyboard)
+
+
+
 class Menu:
     def __init__(self):
         self.len_one_screen = 5
@@ -58,10 +96,6 @@ class Menu:
         menu = Menu._build_menu(ikb_list, 3)
         return InlineKeyboardMarkup(menu)
 
-    @staticmethod
-    def cart_ikb(product):
-        keyboard = [[InlineKeyboardButton('<<< Назад', callback_data=f'back_to_product_list_{str(product.category.id)}')]]
-        return InlineKeyboardMarkup(keyboard)
 
     @staticmethod
     def _get_ikb_list(product_list):

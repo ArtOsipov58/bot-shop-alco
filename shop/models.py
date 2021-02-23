@@ -41,6 +41,26 @@ class Product(Base):
     cat_id = Column(Integer, ForeignKey('category.id'))
 
     category = relationship('Category', back_populates='product_list')
+    cart_item = relationship('CatrItem', back_populates='product')
+
+    @property
+    def text(self):
+        text = f'''Просмотр товара в категории: {self.category.name}
+
+<b>{self.name}</b>
+
+<b>Цена:</b> {str(self.price)} руб.<a href="http://i.imgur.com/I86rTVl.jpg">&#8288;</a>'''
+        return text
+
+
+    # def get_sum_all(self):
+    #     text = f''
+    #     return self.price * self.cart_item.quantity
+
+
+
+
+
 
     def __repr__(self):
         return f'<Product {self.name}>'
@@ -53,6 +73,8 @@ class User(Base):
     first_name = Column(String(15), nullable=False)
     phone = Column(String(15))
 
+    shopping_cart = relationship('ShoppingCart', back_populates='user')
+
     def __repr__(self):
         return f'<User id={str(self.id)}, name={self.first_name}>'
 
@@ -61,11 +83,14 @@ class ShoppingCart(Base):
     __tablename__ = 'shopping_cart'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.user_id'))
+    user_id = Column(Integer, ForeignKey('user.user_id'), unique=True)
     created_date = Column(DateTime, default=datetime.now())
 
+    cart_items = relationship('CatrItem', back_populates='shopping_cart')
+    user = relationship('User', back_populates='shopping_cart')
 
-class CatrItems(Base):
+
+class CatrItem(Base):
     __tablename__ = 'cart_items'
 
     id = Column(Integer, primary_key=True)
@@ -73,6 +98,12 @@ class CatrItems(Base):
     quantity = Column(Integer)
     created_date = Column(DateTime, default=datetime.now())
     shopping_cart_id = Column(Integer, ForeignKey('shopping_cart.id'))
+
+    shopping_cart = relationship('ShoppingCart', back_populates='cart_items')
+    product = relationship('Product', back_populates='cart_item')
+
+
+
 
 
 
