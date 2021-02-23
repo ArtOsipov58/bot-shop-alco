@@ -3,7 +3,7 @@ import logging
 from sqlalchemy.orm import sessionmaker
 
 from shop.keyboard import *
-from shop.models import Category, engine, Product
+from shop.models import Category, engine, Product, ShoppingCart, User
 # from shop.shopping_cart import CartMenu
 from shop.keyboard import CartMenu, Menu
 
@@ -16,9 +16,24 @@ logging.basicConfig(
 
 
 def start(update, context):
+    user_id = update.message.from_user.id
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    if session.query(User).filter_by(user_id=user_id).count() == 0:
+        user = User(
+            user_id=user_id,
+            first_name=update.message.from_user.first_name
+            )
+        session.add(user)
+        shopping_cart = ShoppingCart(user_id=user_id)
+        session.add(shopping_cart)
+
+    session.commit()
+
     update.message.reply_text(
         msg_start,
-        reply_markup=get_main_menu())
+        reply_markup=get_main_menu()
+        )
 
 
 def get_my_id(update, context):
@@ -94,18 +109,18 @@ def navigate_in_category(update, context):
 
 def get_product_cart(update, context):
     query = update.callback_query
+    user_id = query.from_user.id
     product_id = int(query.data.split('_')[-1])
 
     Session = sessionmaker(bind=engine)
     session = Session()
-    product = session.query(Product).filter_by(id=product_id).first()
 
-    menu = CartMenu(product)
+    menu = CartMenu(session, product_id, user_id)
     context.user_data['cart_menu'] = menu
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        text=product.text,
+        text=menu.product.text,
         reply_markup=menu.cart_ikb()
         )
 
@@ -127,3 +142,16 @@ def quantity_handler(update, context):
         reply_markup=menu.cart_ikb()
         )
 
+
+def add_to_cart(update, context):
+    query = update.callback_query
+
+    menu = context.user_data['cart_menu']
+    menu.add_to_cart
+    query.answer('Товар добавлен в корзину')
+
+    context.bot.edit_message_reply_markup(
+        chat_id=query.message.chat_id,
+        message_id=context.user_data['msg_id'],
+        reply_markup=menu.cart_ikb()
+        )

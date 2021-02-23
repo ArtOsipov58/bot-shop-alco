@@ -41,7 +41,7 @@ class Product(Base):
     cat_id = Column(Integer, ForeignKey('category.id'))
 
     category = relationship('Category', back_populates='product_list')
-    cart_item = relationship('CatrItem', back_populates='product')
+    cart_item = relationship('CartItem', back_populates='product')
 
     @property
     def text(self):
@@ -86,16 +86,16 @@ class ShoppingCart(Base):
     user_id = Column(Integer, ForeignKey('user.user_id'), unique=True)
     created_date = Column(DateTime, default=datetime.now())
 
-    cart_items = relationship('CatrItem', back_populates='shopping_cart')
+    cart_items = relationship('CartItem', back_populates='shopping_cart')
     user = relationship('User', back_populates='shopping_cart')
 
 
-class CatrItem(Base):
+class CartItem(Base):
     __tablename__ = 'cart_items'
 
     id = Column(Integer, primary_key=True)
     product_id = Column(Integer, ForeignKey('product.id'))
-    quantity = Column(Integer)
+    quantity = Column(Integer, default=0)
     created_date = Column(DateTime, default=datetime.now())
     shopping_cart_id = Column(Integer, ForeignKey('shopping_cart.id'))
 

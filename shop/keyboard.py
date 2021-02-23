@@ -3,7 +3,7 @@ from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
                    ReplyKeyboardMarkup)
 
 from shop.messages import *
-from shop.models import Category, engine, Product
+from shop.models import Category, CartItem, engine, Product, ShoppingCart
 
 
 def get_main_menu():
@@ -19,9 +19,12 @@ def get_main_menu():
 
 
 class CartMenu:
-    def __init__(self, product, quantity=1):
-        self.product = product
-        self.quantity = quantity
+    def __init__(self, session, product_id, user_id):
+        self.product_id = product_id
+        self.user_id = user_id
+        self.session = session
+        self.quantity = 1
+        self.product = session.query(Product).filter_by(id=self.product_id).first()
 
     @property
     def _btn_get_sum_all(self):
@@ -42,6 +45,21 @@ class CartMenu:
         else:
             return False
 
+    @property
+    def add_to_cart(self):
+        shopping_cart = self.session.query(ShoppingCart)\
+            .filter_by(user_id=self.user_id).first()
+        cart_item = CartItem(
+            product_id=self.product.id,
+            quantity=self.quantity,
+            shopping_cart_id=shopping_cart.id
+            )
+        self.session.add(cart_item)
+        self.session.commit()
+
+    @property
+    def delete_from_cart(self):
+        self.product.cart_item.quantity -= 1
 
     def cart_ikb(self):
         keyboard = [
@@ -50,7 +68,9 @@ class CartMenu:
             [InlineKeyboardButton(emoji_plus, callback_data='add'),
              InlineKeyboardButton(emoji_minus, callback_data='minus')],
 
-            [InlineKeyboardButton('<<< Назад', callback_data=f'back_to_product_list_{str(self.product.category.id)}')]
+             [InlineKeyboardButton(btn_add_to_cart, callback_data=f'add_to_cart_{str(self.product.id)}')],
+
+            [InlineKeyboardButton(btn_back, callback_data=f'back_to_product_list_{str(self.product.category.id)}')]
             ]
         return InlineKeyboardMarkup(keyboard)
 
