@@ -67,7 +67,7 @@ class Menu:
     def _get_ikb_list(product_list):
         ikb_list = list()
         for product in product_list:
-            ikb_list.append(InlineKeyboardButton(product.name, callback_data=f'prod_{str(product.id)}'))
+            ikb_list.append(InlineKeyboardButton(f'{product.name} {str(product.price)} руб', callback_data=f'prod_{str(product.id)}'))
         return ikb_list
 
     def get_product_ikb(self, product_list, screen_num=1):

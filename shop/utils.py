@@ -56,7 +56,7 @@ def import_price():
                 ).first()
             product = Product(
                 name=row['Наименование'],
-                price=row['Цена: Цена продажи'],
+                price=int(float(row['Цена: Цена продажи'].replace(',', '.'))),
                 artikul=row['Артикул'],
                 cat_id=category.id
                 )
