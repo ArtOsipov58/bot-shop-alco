@@ -28,8 +28,8 @@ class CartMenu:
 
     @property
     def _btn_get_sum_all(self):
-        sum_all = self.product.price * self.quantity
-        return f'{str(self.product.price)} * {str(self.quantity)} = {str(sum_all)} руб.'
+        self.sum_all = self.product.price * self.quantity
+        return f'{str(self.product.price)} * {str(self.quantity)} = {str(self.sum_all)} руб.'
 
     @property
     def add(self):
@@ -57,9 +57,21 @@ class CartMenu:
         self.session.add(cart_item)
         self.session.commit()
 
+    def delete_from_cart(self, cart_item_id):
+        cart_item = self.session.query(CartItem)\
+            .filter_by(id=cart_item_id).first()
+        self.session.delete(cart_item)
+        self.session.commit()
+
     @property
-    def delete_from_cart(self):
-        self.product.cart_item.quantity -= 1
+    def show_cart_items(self):
+        shopping_cart = self.session.query(ShoppingCart)\
+            .filter_by(user_id=self.user_id).first()
+        text = ''
+        for cart_item in shopping_cart.cart_items:
+            text += f'{cart_item.product.name}: {str(cart_item.product.price)} x {str(cart_item.quantity)}\n'
+
+        return f'Сейчас в Вашей корзине:\n\n{text}'
 
     def cart_ikb(self):
         keyboard = [

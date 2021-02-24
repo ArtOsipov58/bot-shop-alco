@@ -155,3 +155,12 @@ def add_to_cart(update, context):
         message_id=context.user_data['msg_id'],
         reply_markup=menu.cart_ikb()
         )
+
+
+def show_cart_handl(update, context):
+    menu = context.user_data.get('cart_menu')
+    if not menu:
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        menu = CartMenu(session, product_id, user_id)
+    update.message.reply_text(menu.show_cart_items)
