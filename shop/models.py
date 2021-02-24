@@ -41,7 +41,7 @@ class Product(Base):
     cat_id = Column(Integer, ForeignKey('category.id'))
 
     category = relationship('Category', back_populates='product_list')
-    cart_item = relationship('CartItem', back_populates='product')
+    cart_items = relationship('CartItem', back_populates='product')
 
     @property
     def text(self):
@@ -89,6 +89,18 @@ class ShoppingCart(Base):
     cart_items = relationship('CartItem', back_populates='shopping_cart')
     user = relationship('User', back_populates='shopping_cart')
 
+    def show_cart_items(self, session):
+        text = ''
+        for cart_item in self.cart_items:
+            text += f'{cart_item.product.name}: {str(cart_item.product.price)} x {str(cart_item.quantity)}\n'
+
+        return f'Сейчас в Вашей корзине:\n\n{text}'
+
+
+
+
+
+
 
 class CartItem(Base):
     __tablename__ = 'cart_items'
@@ -100,10 +112,27 @@ class CartItem(Base):
     shopping_cart_id = Column(Integer, ForeignKey('shopping_cart.id'))
 
     shopping_cart = relationship('ShoppingCart', back_populates='cart_items')
-    product = relationship('Product', back_populates='cart_item')
+    product = relationship('Product', back_populates='cart_items')
 
+    @classmethod
+    def add_to_cart(cls, session, **kw):
 
+        # import ipdb; ipdb.set_trace()
 
+        if session.query(cls).filter_by(id=cls.id).count() == 0:
+            cart_item = cls(**kw)
+            session.add(cart_item)
+        else: 
+            cart_item = session.query(cls).filter_by(id=cls.id).first()
+            cart_item.quantity += kw['quantity']
+        session.commit()
+
+    @classmethod
+    def delete_from_cart(cls, session, cart_item_id):
+        cart_item = session.query(CartItem)\
+            .filter_by(id=cart_item_id).first()
+        session.delete(cart_item)
+        session.commit()
 
 
 

@@ -18,13 +18,14 @@ def get_main_menu():
 
 
 
-class CartMenu:
-    def __init__(self, session, product_id, user_id):
-        self.product_id = product_id
-        self.user_id = user_id
-        self.session = session
-        self.quantity = 1
-        self.product = session.query(Product).filter_by(id=self.product_id).first()
+class ProductMenu:
+    def __init__(self, product):
+
+
+        import ipdb; ipdb.set_trace()
+
+        self.product = product
+        self.quantity = self.product.cart_item.quantity
 
     @property
     def _btn_get_sum_all(self):
@@ -46,33 +47,6 @@ class CartMenu:
             return False
 
     @property
-    def add_to_cart(self):
-        shopping_cart = self.session.query(ShoppingCart)\
-            .filter_by(user_id=self.user_id).first()
-        cart_item = CartItem(
-            product_id=self.product.id,
-            quantity=self.quantity,
-            shopping_cart_id=shopping_cart.id
-            )
-        self.session.add(cart_item)
-        self.session.commit()
-
-    def delete_from_cart(self, cart_item_id):
-        cart_item = self.session.query(CartItem)\
-            .filter_by(id=cart_item_id).first()
-        self.session.delete(cart_item)
-        self.session.commit()
-
-    @property
-    def show_cart_items(self):
-        shopping_cart = self.session.query(ShoppingCart)\
-            .filter_by(user_id=self.user_id).first()
-        text = ''
-        for cart_item in shopping_cart.cart_items:
-            text += f'{cart_item.product.name}: {str(cart_item.product.price)} x {str(cart_item.quantity)}\n'
-
-        return f'Сейчас в Вашей корзине:\n\n{text}'
-
     def cart_ikb(self):
         keyboard = [
             [InlineKeyboardButton(self._btn_get_sum_all, callback_data='nothing')],

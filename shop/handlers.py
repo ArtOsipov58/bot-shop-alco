@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from shop.keyboard import *
 from shop.models import Category, engine, Product, ShoppingCart, User
 # from shop.shopping_cart import CartMenu
-from shop.keyboard import CartMenu, Menu
+from shop.keyboard import ProductMenu, Menu
 
 
 logging.basicConfig(
@@ -109,19 +109,19 @@ def navigate_in_category(update, context):
 
 def get_product_cart(update, context):
     query = update.callback_query
-    user_id = query.from_user.id
     product_id = int(query.data.split('_')[-1])
 
     Session = sessionmaker(bind=engine)
     session = Session()
+    product = session.query(Product).filter_by(id=product_id).first()
 
-    menu = CartMenu(session, product_id, user_id)
+    menu = ProductMenu(product)
     context.user_data['cart_menu'] = menu
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
         text=menu.product.text,
-        reply_markup=menu.cart_ikb()
+        reply_markup=menu.cart_ikb
         )
 
 
@@ -139,28 +139,42 @@ def quantity_handler(update, context):
     context.bot.edit_message_reply_markup(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        reply_markup=menu.cart_ikb()
+        reply_markup=menu.cart_ikb
         )
 
 
 def add_to_cart(update, context):
     query = update.callback_query
-
+    product_id = int(query.data.split('_')[-1])
     menu = context.user_data['cart_menu']
-    menu.add_to_cart
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    shopping_cart = session.query(ShoppingCart)\
+        .filter_by(user_id=query.from_user.id).first()
+
+    CartItem.add_to_cart(
+        session,
+        product_id=product_id,
+        quantity=menu.quantity,
+        shopping_cart_id=shopping_cart.id
+        )
+
     query.answer('Товар добавлен в корзину')
 
     context.bot.edit_message_reply_markup(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        reply_markup=menu.cart_ikb()
+        reply_markup=menu.cart_ikb
         )
 
 
 def show_cart_handl(update, context):
-    menu = context.user_data.get('cart_menu')
-    if not menu:
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        menu = CartMenu(session, product_id, user_id)
-    update.message.reply_text(menu.show_cart_items)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    # shopping_cart = session.query(ShoppingCart).filter_by(user_id=update.message.from_user.id).first()
+    shopping_cart = session.query(ShoppingCart).filter_by(user_id=update.message.from_user.id).first()
+    text = shopping_cart.show_cart_items(session)
+    msg = update.message.reply_text(text)
+    context.user_data['msg_id'] = msg.message_id
