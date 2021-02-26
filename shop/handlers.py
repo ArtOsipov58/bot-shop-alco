@@ -113,14 +113,17 @@ def get_product_cart(update, context):
 
     Session = sessionmaker(bind=engine)
     session = Session()
-    product = session.query(Product).filter_by(id=product_id).first()
+    cart_item = session.query(CartItem).filter_by(product_id=product_id).first()
 
-    menu = ProductMenu(product)
+
+    import ipdb; ipdb.set_trace()
+
+    menu = ProductMenu(cart_item)
     context.user_data['cart_menu'] = menu
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        text=menu.product.text,
+        text=menu.cart_item.product.text,
         reply_markup=menu.cart_ikb
         )
 
