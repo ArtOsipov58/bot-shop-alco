@@ -16,18 +16,28 @@ def get_main_menu():
 
 
 
+class CartMenu:
+    def __init__(self):
+        pass
+
+    @property
+    def cart_ikb(self):
+        keyboard = [[InlineKeyboardButton(btn_edit_cart, callback_data='edit_cart')]]
+        return InlineKeyboardMarkup(keyboard)
 
 
 
 class ProductMenu:
-    def __init__(self, cart_item):
-        self.cart_item = cart_item
-        self.quantity = self.cart_item.quantity
+    def __init__(self, product):
+        self.product = product
+        self.quantity = 1
+        if self.product.cart_items:
+            self.quantity = self.product.cart_items[0].quantity
 
     @property
     def _btn_get_sum_all(self):
-        self.sum_all = self.cart_item.product.price * self.quantity
-        return f'{str(self.cart_item.product.price)} * {str(self.quantity)} = {str(self.sum_all)} руб.'
+        self.sum_all = self.product.price * self.quantity
+        return f'{str(self.product.price)} * {str(self.quantity)} = {str(self.sum_all)} руб.'
 
     @property
     def add(self):
@@ -44,16 +54,16 @@ class ProductMenu:
             return False
 
     @property
-    def cart_ikb(self):
+    def product_ikb(self):
         keyboard = [
             [InlineKeyboardButton(self._btn_get_sum_all, callback_data='nothing')],
 
             [InlineKeyboardButton(emoji_plus, callback_data='add'),
              InlineKeyboardButton(emoji_minus, callback_data='minus')],
 
-             [InlineKeyboardButton(btn_add_to_cart, callback_data=f'add_to_cart_{str(self.cart_item.product.id)}')],
+             [InlineKeyboardButton(btn_add_to_cart, callback_data=f'update_cart_{str(self.product.id)}')],
 
-            [InlineKeyboardButton(btn_back, callback_data=f'back_to_product_list_{str(self.cart_item.product.category.id)}')]
+            [InlineKeyboardButton(btn_back, callback_data=f'back_to_product_list_{str(self.product.category.id)}')]
             ]
         return InlineKeyboardMarkup(keyboard)
 

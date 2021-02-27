@@ -43,6 +43,7 @@ def get_my_id(update, context):
 
 
 def select_category(update, context):
+    del_replykb_messages(update, context)
     query = update.callback_query
     if query:
         chat_id = query.message.chat_id
@@ -113,18 +114,16 @@ def get_product_cart(update, context):
 
     Session = sessionmaker(bind=engine)
     session = Session()
-    cart_item = session.query(CartItem).filter_by(product_id=product_id).first()
 
+    product = session.query(Product).filter_by(id=product_id).first()
 
-    import ipdb; ipdb.set_trace()
-
-    menu = ProductMenu(cart_item)
+    menu = ProductMenu(product)
     context.user_data['cart_menu'] = menu
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        text=menu.cart_item.product.text,
-        reply_markup=menu.cart_ikb
+        text=menu.product.text,
+        reply_markup=menu.product_ikb
         )
 
 
@@ -142,11 +141,11 @@ def quantity_handler(update, context):
     context.bot.edit_message_reply_markup(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        reply_markup=menu.cart_ikb
+        reply_markup=menu.product_ikb
         )
 
 
-def add_to_cart(update, context):
+def update_cart(update, context):
     query = update.callback_query
     product_id = int(query.data.split('_')[-1])
     menu = context.user_data['cart_menu']
@@ -157,27 +156,69 @@ def add_to_cart(update, context):
     shopping_cart = session.query(ShoppingCart)\
         .filter_by(user_id=query.from_user.id).first()
 
-    CartItem.add_to_cart(
-        session,
-        product_id=product_id,
-        quantity=menu.quantity,
-        shopping_cart_id=shopping_cart.id
-        )
+    if session.query(CartItem).filter_by(product_id=product_id)\
+        .count() == 0:
+        cart_item = CartItem(
+            product_id=product_id,
+            quantity=menu.quantity,
+            shopping_cart_id=shopping_cart.id
+            )
+        session.add(cart_item)
+
+    else:
+        cart_item = session.query(CartItem)\
+            .filter_by(product_id=product_id).first()
+        cart_item.quantity = menu.quantity
+    session.commit()
 
     query.answer('Товар добавлен в корзину')
 
     context.bot.edit_message_reply_markup(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        reply_markup=menu.cart_ikb
+        reply_markup=menu.product_ikb
         )
 
 
 def show_cart_handl(update, context):
+    del_replykb_messages(update, context)
+
+    chat_id = update.message.chat_id
     Session = sessionmaker(bind=engine)
     session = Session()
-    # shopping_cart = session.query(ShoppingCart).filter_by(user_id=update.message.from_user.id).first()
-    shopping_cart = session.query(ShoppingCart).filter_by(user_id=update.message.from_user.id).first()
+
+    shopping_cart = session.query(ShoppingCart)\
+        .filter_by(user_id=update.message.from_user.id).first()
     text = shopping_cart.show_cart_items(session)
-    msg = update.message.reply_text(text)
+    cart_menu = CartMenu()
+
+    msg_id = context.user_data.get('msg_id')
+    if msg_id:
+        msg = context.bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=msg_id,
+            text=text, 
+            reply_markup=cart_menu.cart_ikb
+            )
+    else:
+        msg = context.bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            reply_markup=cart_menu.cart_ikb
+            )
     context.user_data['msg_id'] = msg.message_id
+
+
+def del_replykb_messages(update, context):
+    query = update.callback_query
+    if query:
+        msg_id = query.message.message_id
+        chat_id = query.message.chat_id
+    else: 
+        msg_id = update.message.message_id
+        chat_id = update.message.chat_id
+
+    context.bot.delete_message(
+        chat_id=chat_id,
+        message_id=msg_id
+        )

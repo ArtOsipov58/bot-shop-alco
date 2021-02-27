@@ -114,18 +114,6 @@ class CartItem(Base):
     shopping_cart = relationship('ShoppingCart', back_populates='cart_items')
     product = relationship('Product', back_populates='cart_items')
 
-    @classmethod
-    def add_to_cart(cls, session, **kw):
-
-        # import ipdb; ipdb.set_trace()
-
-        if session.query(cls).filter_by(id=cls.id).count() == 0:
-            cart_item = cls(**kw)
-            session.add(cart_item)
-        else: 
-            cart_item = session.query(cls).filter_by(id=cls.id).first()
-            cart_item.quantity += kw['quantity']
-        session.commit()
 
     @classmethod
     def delete_from_cart(cls, session, cart_item_id):
