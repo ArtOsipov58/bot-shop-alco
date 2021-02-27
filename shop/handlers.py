@@ -210,12 +210,6 @@ def show_cart_handl(update, context):
             )
     context.user_data['msg_id'] = msg.message_id
 
-# btn_catalog = 'Каталог'
-# btn_cart = 'Корзина'
-# btn_help = 'Помощь'
-# btn_chat = 'Онлай-чат'
-# btn_call = 'Позвонить'
-
 
 def del_replykb_messages(update, context):
     pattern = f'({btn_catalog}|{btn_cart}|{btn_help}|\
@@ -248,14 +242,17 @@ def delete_product_from_cart(update, context):
     session = Session()
     cart_item = session.query(CartItem).filter_by(id=cart_item_id).first()
     session.delete(cart_item)
-    session.commit()
+
+    cart_items = cart_item.shopping_cart.cart_items
+    menu = get_edit_products_list(cart_items)
 
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        text=cart_item.shopping_cart.show_cart_items(session)
+        text=cart_item.shopping_cart.show_cart_items(session),
+        reply_markup=menu
         )
-
+    session.commit()
 
 
 def checkout_start(update, context):
