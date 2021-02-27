@@ -22,7 +22,9 @@ class CartMenu:
 
     @property
     def cart_ikb(self):
-        keyboard = [[InlineKeyboardButton(btn_edit_cart, callback_data='edit_cart')]]
+        keyboard = [
+            [InlineKeyboardButton(btn_edit_cart, callback_data='edit_cart'),
+             InlineKeyboardButton(btn_checkout, callback_data='checkout')]]
         return InlineKeyboardMarkup(keyboard)
 
 
@@ -31,8 +33,11 @@ class ProductMenu:
     def __init__(self, product):
         self.product = product
         self.quantity = 1
+        self._product_in_cart = False
         if self.product.cart_items:
+            self._product_in_cart = True
             self.quantity = self.product.cart_items[0].quantity
+            self.cart_item_id = self.product.cart_items[0].id
 
     @property
     def _btn_get_sum_all(self):
@@ -58,13 +63,16 @@ class ProductMenu:
         keyboard = [
             [InlineKeyboardButton(self._btn_get_sum_all, callback_data='nothing')],
 
-            [InlineKeyboardButton(emoji_plus, callback_data='add'),
+            [
+             InlineKeyboardButton(emoji_plus, callback_data='add'),
              InlineKeyboardButton(emoji_minus, callback_data='minus')],
 
              [InlineKeyboardButton(btn_add_to_cart, callback_data=f'update_cart_{str(self.product.id)}')],
 
             [InlineKeyboardButton(btn_back, callback_data=f'back_to_product_list_{str(self.product.category.id)}')]
             ]
+        if self._product_in_cart:
+            keyboard[1].insert(0, InlineKeyboardButton(btn_delete, callback_data=f'delete_product_from_cart_{str(self.product.cart_items[0].id)}'))
         return InlineKeyboardMarkup(keyboard)
 
 

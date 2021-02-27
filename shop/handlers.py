@@ -1,6 +1,8 @@
 import logging
+import re
 
 from sqlalchemy.orm import sessionmaker
+from telegram.ext import ConversationHandler
 
 from shop.keyboard import *
 from shop.models import Category, engine, Product, ShoppingCart, User
@@ -208,17 +210,55 @@ def show_cart_handl(update, context):
             )
     context.user_data['msg_id'] = msg.message_id
 
+# btn_catalog = 'Каталог'
+# btn_cart = 'Корзина'
+# btn_help = 'Помощь'
+# btn_chat = 'Онлай-чат'
+# btn_call = 'Позвонить'
+
 
 def del_replykb_messages(update, context):
+    pattern = f'({btn_catalog}|{btn_cart}|{btn_help}|\
+                {btn_chat}|{btn_call})'
+
     query = update.callback_query
     if query:
         msg_id = query.message.message_id
         chat_id = query.message.chat_id
+        result = re.search(pattern, query.message.text)
     else: 
         msg_id = update.message.message_id
         chat_id = update.message.chat_id
+        result = re.search(pattern, update.message.text)
+
+    if not result:
+        return
 
     context.bot.delete_message(
         chat_id=chat_id,
         message_id=msg_id
         )
+
+
+def delete_product_from_cart(update, context):
+    query = update.callback_query
+    cart_item_id = int(query.data.split('_')[-1])
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    cart_item = session.query(CartItem).filter_by(id=cart_item_id).first()
+    session.delete(cart_item)
+    session.commit()
+
+    context.bot.edit_message_text(
+        chat_id=query.message.chat_id,
+        message_id=context.user_data['msg_id'],
+        text=cart_item.shopping_cart.show_cart_items(session)
+        )
+
+
+
+def checkout_start(update, context):
+    query = update.callback_query
+    query.message.reply_text(msg_checkout_place)
+    return ConversationHandler.END
