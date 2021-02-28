@@ -234,6 +234,7 @@ def del_replykb_messages(update, context):
         )
 
 
+
 def delete_product_from_cart(update, context):
     query = update.callback_query
     cart_item_id = int(query.data.split('_')[-1])
@@ -253,6 +254,31 @@ def delete_product_from_cart(update, context):
         reply_markup=menu
         )
     session.commit()
+
+
+def edit_cart_handler(update, context):
+    query = update.callback_query
+    user_id = query.from_user.id
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    shopping_cart = session.query(ShoppingCart).filter_by(user_id=user_id)\
+        .first()
+    menu = get_edit_products_list(shopping_cart.cart_items)
+    text = 'Выберите товар, который нужно изменить или отредактировать'
+    # text = shopping_cart.show_cart_items(session)
+
+    context.bot.edit_message_text(
+        chat_id=query.message.chat_id,
+        message_id=context.user_data['msg_id'],
+        text=text,
+        reply_markup=menu
+        )
+    session.commit()
+
+
+
+
 
 
 def checkout_start(update, context):
