@@ -14,10 +14,15 @@ def get_main_menu():
         ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
+
 def get_edit_products_list(cart_items):
     keyboard = list()
     for cart_item in cart_items:
-        keyboard.append([InlineKeyboardButton(cart_item.product.name, callback_data=f'prod_{str(cart_item.product.id)}')])
+        btn = f'{cart_item.product.name} ({str(cart_item.quantity)})'
+        keyboard.append(
+            [InlineKeyboardButton(btn, callback_data=f'prod_{str(cart_item.product.id)}')])
+    if not keyboard:
+        return False
     return InlineKeyboardMarkup(keyboard)
 
 

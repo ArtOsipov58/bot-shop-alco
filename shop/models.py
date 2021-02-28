@@ -91,6 +91,9 @@ class ShoppingCart(Base):
 
     def show_cart_items(self, session):
         text = ''
+        if not self.cart_items:
+            return False
+
         for cart_item in self.cart_items:
             text += f'{cart_item.product.name}: {str(cart_item.product.price)} x {str(cart_item.quantity)}\n'
 

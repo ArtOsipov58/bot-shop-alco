@@ -2,9 +2,11 @@ import logging
 import re
 
 from sqlalchemy.orm import sessionmaker
+from telegram import InlineKeyboardMarkup
 from telegram.ext import ConversationHandler
 
 from shop.keyboard import *
+from shop.messages import *
 from shop.models import Category, engine, Product, ShoppingCart, User
 # from shop.shopping_cart import CartMenu
 from shop.keyboard import ProductMenu, Menu
@@ -192,7 +194,14 @@ def show_cart_handl(update, context):
     shopping_cart = session.query(ShoppingCart)\
         .filter_by(user_id=update.message.from_user.id).first()
     text = shopping_cart.show_cart_items(session)
+
     cart_menu = CartMenu()
+    menu = cart_menu.cart_ikb
+
+    # Если корзина пустая
+    if not text:
+        text = msg_empty_cart
+        menu = InlineKeyboardMarkup([[]])
 
     msg_id = context.user_data.get('msg_id')
     if msg_id:
@@ -200,13 +209,13 @@ def show_cart_handl(update, context):
             chat_id=chat_id,
             message_id=msg_id,
             text=text, 
-            reply_markup=cart_menu.cart_ikb
+            reply_markup=menu
             )
     else:
         msg = context.bot.send_message(
             chat_id=chat_id,
             text=text,
-            reply_markup=cart_menu.cart_ikb
+            reply_markup=menu
             )
     context.user_data['msg_id'] = msg.message_id
 
@@ -247,10 +256,21 @@ def delete_product_from_cart(update, context):
     cart_items = cart_item.shopping_cart.cart_items
     menu = get_edit_products_list(cart_items)
 
+    if not menu:
+        menu = InlineKeyboardMarkup([[]])
+        context.bot.edit_message_text(
+            chat_id=query.message.chat_id,
+            message_id=context.user_data['msg_id'],
+            text=msg_empty_cart,
+            reply_markup=menu
+            )
+        session.commit()
+        return
+
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        text=cart_item.shopping_cart.show_cart_items(session),
+        text=msg_edit_cart,
         reply_markup=menu
         )
     session.commit()
@@ -265,13 +285,20 @@ def edit_cart_handler(update, context):
     shopping_cart = session.query(ShoppingCart).filter_by(user_id=user_id)\
         .first()
     menu = get_edit_products_list(shopping_cart.cart_items)
-    text = 'Выберите товар, который нужно изменить или отредактировать'
-    # text = shopping_cart.show_cart_items(session)
+    if not menu:
+        context.bot.edit_message_text(
+            chat_id=query.message.chat_id,
+            message_id=context.user_data['msg_id'],
+            text=msg_empty_cart,
+            reply_markup=menu
+            )
+        session.commit()
+        return
 
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        text=text,
+        text=msg_edit_cart,
         reply_markup=menu
         )
     session.commit()
