@@ -9,7 +9,7 @@ from shop.keyboard import *
 from shop.messages import *
 from shop.models import Category, engine, Product, ShoppingCart, User
 # from shop.shopping_cart import CartMenu
-from shop.keyboard import ProductMenu, Menu
+from shop.keyboard import EditProductMenu, ProductMenu, Menu
 
 
 logging.basicConfig(
@@ -121,7 +121,11 @@ def get_product_cart(update, context):
 
     product = session.query(Product).filter_by(id=product_id).first()
 
-    menu = ProductMenu(product)
+    if 'prod_edit_' in query.data:
+        menu = EditProductMenu(product)
+    else:
+        menu = ProductMenu(product)
+
     context.user_data['cart_menu'] = menu
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
@@ -186,14 +190,65 @@ def update_cart(update, context):
 
 def show_cart_handl(update, context):
     del_replykb_messages(update, context)
+    query = update.callback_query
+    if query:
+        chat_id = query.message.chat_id
+        user_id = query.from_user.id
+    else:
+        chat_id = update.message.chat_id
+        user_id = update.message.from_user.id
 
-    chat_id = update.message.chat_id
     Session = sessionmaker(bind=engine)
     session = Session()
 
     shopping_cart = session.query(ShoppingCart)\
-        .filter_by(user_id=update.message.from_user.id).first()
+        .filter_by(user_id=user_id).first()
     text = shopping_cart.show_cart_items(session)
+
+    cart_menu = CartMenu()
+    menu = cart_menu.cart_ikb
+
+    # Если корзина пустая
+    if not text:
+        text = msg_empty_cart
+        menu = InlineKeyboardMarkup([[]])
+
+    msg_id = context.user_data.get('msg_id')
+    if msg_id:
+        msg = context.bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=msg_id,
+            text=text, 
+            reply_markup=menu
+            )
+    else:
+        msg = context.bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            reply_markup=menu
+            )
+    context.user_data['msg_id'] = msg.message_id
+
+
+def back_to_cart(update, context):
+    query = update.callback_query
+    chat_id = query.message.chat_id
+    user_id = query.from_user.id
+    product_id = int(query.data.split('_')[-1])
+    menu = context.user_data['cart_menu']
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    cart_item = session.query(CartItem)\
+        .filter_by(product_id=product_id).first()
+    cart_item.quantity = menu.quantity
+
+
+    shopping_cart = session.query(ShoppingCart)\
+        .filter_by(user_id=user_id).first()
+    text = shopping_cart.show_cart_items(session)
+    session.commit()
 
     cart_menu = CartMenu()
     menu = cart_menu.cart_ikb

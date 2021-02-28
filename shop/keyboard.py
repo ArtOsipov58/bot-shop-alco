@@ -20,7 +20,7 @@ def get_edit_products_list(cart_items):
     for cart_item in cart_items:
         btn = f'{cart_item.product.name} ({str(cart_item.quantity)})'
         keyboard.append(
-            [InlineKeyboardButton(btn, callback_data=f'prod_{str(cart_item.product.id)}')])
+            [InlineKeyboardButton(btn, callback_data=f'prod_edit_{str(cart_item.product.id)}')])
     if not keyboard:
         return False
     return InlineKeyboardMarkup(keyboard)
@@ -82,8 +82,30 @@ class ProductMenu:
             [InlineKeyboardButton(btn_back, callback_data=f'back_to_product_list_{str(self.product.category.id)}')]
             ]
         if self._product_in_cart:
-            keyboard[1].insert(0, InlineKeyboardButton(btn_delete, callback_data=f'delete_product_from_cart_{str(self.product.cart_items[0].id)}'))
+            keyboard[1].append(InlineKeyboardButton(btn_delete, callback_data=f'delete_product_from_cart_{str(self.product.cart_items[0].id)}'))
         return InlineKeyboardMarkup(keyboard)
+
+
+
+class EditProductMenu(ProductMenu):
+    def __init__(self, product):
+        ProductMenu.__init__(self, product)
+
+    @property
+    def product_ikb(self):
+        keyboard = [
+            [InlineKeyboardButton(self._btn_get_sum_all, callback_data='nothing')],
+
+            [
+             InlineKeyboardButton(emoji_plus, callback_data='add'),
+             InlineKeyboardButton(emoji_minus, callback_data='minus')],
+
+             [InlineKeyboardButton(btn_back_to_cart, callback_data=f'back_to_cart_{str(self.product.id)}')]
+            ]
+        if self._product_in_cart:
+            keyboard[1].append(InlineKeyboardButton(btn_delete, callback_data=f'delete_product_from_cart_{str(self.product.cart_items[0].id)}'))
+        return InlineKeyboardMarkup(keyboard)
+
 
 
 
