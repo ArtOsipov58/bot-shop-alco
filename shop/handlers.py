@@ -3,6 +3,7 @@ import re
 
 from sqlalchemy.orm import sessionmaker
 from telegram import InlineKeyboardMarkup
+from telegram.error import BadRequest
 from telegram.ext import ConversationHandler
 
 from shop.keyboard import *
@@ -56,7 +57,7 @@ def select_category(update, context):
     text = 'Выберите категорию'
     msg_id = context.user_data.get('msg_id')
     if msg_id:
-        context.bot.edit_message_text(
+        msg = context.bot.edit_message_text(
             chat_id=chat_id,
             message_id=msg_id,
             text=text,
@@ -181,11 +182,14 @@ def update_cart(update, context):
 
     query.answer('Товар добавлен в корзину')
 
-    context.bot.edit_message_reply_markup(
-        chat_id=query.message.chat_id,
-        message_id=context.user_data['msg_id'],
-        reply_markup=menu.product_ikb
-        )
+    try:
+        context.bot.edit_message_reply_markup(
+            chat_id=query.message.chat_id,
+            message_id=context.user_data['msg_id'],
+            reply_markup=menu.product_ikb
+            )
+    except BadRequest:
+        pass
 
 
 def show_cart_handl(update, context):
