@@ -97,8 +97,8 @@ class EditProductMenu(ProductMenu):
             [InlineKeyboardButton(self._btn_get_sum_all, callback_data='nothing')],
 
             [
-             InlineKeyboardButton(emoji_plus, callback_data='add'),
-             InlineKeyboardButton(emoji_minus, callback_data='minus')],
+             InlineKeyboardButton(emoji_minus, callback_data='minus'),
+             InlineKeyboardButton(emoji_plus, callback_data='add')],
 
              [InlineKeyboardButton(btn_back_to_cart, callback_data=f'back_to_cart_{str(self.product.id)}')]
             ]
