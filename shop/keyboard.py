@@ -74,8 +74,8 @@ class ProductMenu:
             [InlineKeyboardButton(self._btn_get_sum_all, callback_data='nothing')],
 
             [
-             InlineKeyboardButton(emoji_plus, callback_data='add'),
-             InlineKeyboardButton(emoji_minus, callback_data='minus')],
+             InlineKeyboardButton(emoji_minus, callback_data='minus'),
+             InlineKeyboardButton(emoji_plus, callback_data='add')],
 
              [InlineKeyboardButton(btn_add_to_cart, callback_data=f'update_cart_{str(self.product.id)}')],
 
@@ -111,7 +111,7 @@ class EditProductMenu(ProductMenu):
 
 class Menu:
     def __init__(self):
-        self.len_one_screen = 5
+        self.len_one_screen = 100
         self.column_num = 1
 
     @staticmethod
@@ -154,14 +154,10 @@ class Menu:
     def _get_ikb_list(product_list):
         ikb_list = list()
         for product in product_list:
-            ikb_list.append(InlineKeyboardButton(f'{product.name} {str(product.price)} руб', callback_data=f'prod_{str(product.id)}'))
+            ikb_list.append(InlineKeyboardButton(f'{str(product.price)} - {product.name}', callback_data=f'prod_{str(product.id)}'))
         return ikb_list
 
     def get_product_ikb(self, product_list, screen_num=1):
-
-        # import ipdb; ipdb.set_trace()
-
-
         ikb_list = Menu._get_ikb_list(product_list)
         screen_list = Menu._split_list(ikb_list, self.len_one_screen)
         screen_dict = dict()

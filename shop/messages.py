@@ -11,7 +11,7 @@ btn_add_to_cart = 'Добавить в корзину'
 btn_back = '<<< Назад'
 btn_edit_cart = 'Редактировать'
 btn_checkout = 'Оформить заказ'
-btn_delete = '✖️'
+btn_delete = 'Удалить'
 btn_back_to_cart = 'Сохранить и вернуться в корзину'
 
 msg_start = '''Вас приветствует бот магазина XXX!
