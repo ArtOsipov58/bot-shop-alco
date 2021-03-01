@@ -4,7 +4,7 @@ emoji_minus = '➖'
 btn_catalog = 'Каталог'
 btn_cart = 'Корзина'
 btn_help = 'Помощь'
-btn_chat = 'Онлай-чат'
+btn_chat = 'Онлайн-чат'
 btn_call = 'Позвонить'
 
 btn_add_to_cart = 'Добавить в корзину'
@@ -31,3 +31,5 @@ msg_empty_cart = 'Ваша корзина пуста'
 msg_call = 'Чтобы связаться с оператором, позвоните: +7 (499) 703-00-89'
 
 msg_help = 'По всем вопросам пишите на @alco_support'
+
+msg_chat_jivo = 'Перейдите в чат с оператором: @some_bot'

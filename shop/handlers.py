@@ -246,9 +246,9 @@ def send_reply_msg(update, context, chat_id, text, menu=None):
                 text=text,
                 reply_markup=menu
                 )
+            context.user_data['msg_id'] = msg.message_id
         except BadRequest:
             pass
-    context.user_data['msg_id'] = msg.message_id
 
 
 def back_to_cart(update, context):
@@ -297,8 +297,8 @@ def back_to_cart(update, context):
 
 
 def del_replykb_messages(update, context):
-    pattern = f'({btn_catalog}|{btn_cart}|{btn_help}|\
-                {btn_chat}|{btn_call})'
+    pattern = f'({btn_catalog}|{btn_cart}|{btn_help}|'\
+              f'{btn_chat}|{btn_call})'
 
     query = update.callback_query
     if query:
@@ -382,6 +382,18 @@ def edit_cart_handler(update, context):
     session.commit()
 
 
+def call(update, context):
+    send_reply_msg(update, context, update.message.chat_id, msg_call)
+
+
+def help_handler(update, context):
+    send_reply_msg(update, context, update.message.chat_id, msg_help)
+
+
+def chat_handler(update, context):
+    send_reply_msg(update, context, update.message.chat_id, msg_chat_jivo)
+
+
 def checkout_start(update, context):
     query = update.callback_query
     query.message.reply_text(msg_checkout_place)
@@ -391,9 +403,3 @@ def checkout_start(update, context):
 
 
 
-def call(update, context):
-    send_reply_msg(update, context, update.message.chat_id, msg_call)
-
-
-def help_handler(update, context):
-    send_reply_msg(update, context, update.message.chat_id, msg_help)
