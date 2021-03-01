@@ -209,7 +209,7 @@ def show_cart_handl(update, context):
 
     shopping_cart = session.query(ShoppingCart)\
         .filter_by(user_id=user_id).first()
-    text = shopping_cart.show_cart_items(session)
+    text = shopping_cart.show_cart_items
 
     cart_menu = CartMenu()
     menu = cart_menu.cart_ikb
@@ -253,7 +253,7 @@ def back_to_cart(update, context):
 
     shopping_cart = session.query(ShoppingCart)\
         .filter_by(user_id=user_id).first()
-    text = shopping_cart.show_cart_items(session)
+    text = shopping_cart.show_cart_items
     session.commit()
 
     cart_menu = CartMenu()

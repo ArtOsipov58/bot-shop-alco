@@ -89,15 +89,22 @@ class ShoppingCart(Base):
     cart_items = relationship('CartItem', back_populates='shopping_cart')
     user = relationship('User', back_populates='shopping_cart')
 
-    def show_cart_items(self, session):
+    @property
+    def show_cart_items(self):
         text = ''
         if not self.cart_items:
             return False
 
         for cart_item in self.cart_items:
             text += f'{cart_item.product.name}: {str(cart_item.product.price)} x {str(cart_item.quantity)}\n'
+        return f'Сейчас в Вашей корзине:\n\n{text}\nОбщая сумма: {str(self.full_sum)} руб. + доставка'
 
-        return f'Сейчас в Вашей корзине:\n\n{text}'
+    @property
+    def full_sum(self):
+        full_sum = 0
+        for cart_item in self.cart_items:
+            full_sum += cart_item.product.price * cart_item.quantity
+        return full_sum
 
 
 
