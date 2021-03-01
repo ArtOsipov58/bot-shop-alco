@@ -35,10 +35,24 @@ def start(update, context):
 
     session.commit()
 
-    update.message.reply_text(
+    msg = update.message.reply_text(
         msg_start,
         reply_markup=get_main_menu()
         )
+    context.user_data['main_menu_msg_id'] = msg.message_id
+
+
+def main_menu_handl(update, context):
+    send_reply_msg(
+        update, context, 'Главное меню', 
+        menu=get_main_menu()
+        )
+
+
+    # update.message.reply_text(
+    #     'Главное меню', 
+    #     reply_markup=get_main_menu()
+    #     )
 
 
 def get_my_id(update, context):
@@ -55,21 +69,11 @@ def select_category(update, context):
     else: chat_id = update.message.chat_id
 
     text = 'Выберите категорию'
-    msg_id = context.user_data.get('msg_id')
-    if msg_id:
-        msg = context.bot.edit_message_text(
-            chat_id=chat_id,
-            message_id=msg_id,
-            text=text,
-            reply_markup=menu.get_cat_ikb()
-            )
-    else:
-        msg = context.bot.send_message(
-            chat_id=chat_id,
-            text=text,
-            reply_markup=menu.get_cat_ikb()
-            )
-    context.user_data['msg_id'] = msg.message_id
+
+
+    send_reply_msg(update, context, text, menu=menu.get_cat_ikb())
+
+
 
 
 def get_products_list(update, context):
@@ -219,14 +223,23 @@ def show_cart_handl(update, context):
         text = msg_empty_cart
         menu = InlineKeyboardMarkup([[]])
 
-    send_reply_msg(update, context, chat_id, text, menu)
+    send_reply_msg(update, context, text, menu=menu)
 
 
-def send_reply_msg(update, context, chat_id, text, menu=None):
+def send_reply_msg(update, context, text, menu=None, main_menu=False):
     del_replykb_messages(update, context)
+    query = update.callback_query
+    if query:
+        chat_id = query.message.chat_id
+    else: chat_id = update.message.chat_id
 
     if not menu:
         menu = InlineKeyboardMarkup([[]])
+
+
+    # import ipdb; ipdb.set_trace()
+
+
 
     msg_id = context.user_data.get('msg_id')
     if msg_id:
@@ -238,7 +251,27 @@ def send_reply_msg(update, context, chat_id, text, menu=None):
                 reply_markup=menu
                 )
         except BadRequest:
-            pass
+            # Возникает, когда пытается редактировать 
+            # сообщение с reply-клавиатурой
+
+            # Удаляем предыдущее собщение
+            try:
+                context.bot.delete_message(
+                    chat_id=chat_id,
+                    message_id=msg_id
+                    )
+            except BadRequest:
+                pass
+
+            # Шлём основное сообщение
+            msg = context.bot.send_message(
+                chat_id=chat_id,
+                text=text,
+                reply_markup=menu
+                )
+            # if not main_menu:
+            context.user_data['msg_id'] = msg.message_id
+
     else:
         try:
             msg = context.bot.send_message(
@@ -308,7 +341,10 @@ def del_replykb_messages(update, context):
     else: 
         msg_id = update.message.message_id
         chat_id = update.message.chat_id
-        result = re.search(pattern, update.message.text)
+        try:
+            result = re.search(pattern, update.message.text)
+        except TypeError:
+            result = 'contact'
 
     if not result:
         return
@@ -383,23 +419,60 @@ def edit_cart_handler(update, context):
 
 
 def call(update, context):
-    send_reply_msg(update, context, update.message.chat_id, msg_call)
+    send_reply_msg(update, context, msg_call)
 
 
 def help_handler(update, context):
-    send_reply_msg(update, context, update.message.chat_id, msg_help)
+    send_reply_msg(update, context, msg_help)
 
 
 def chat_handler(update, context):
-    send_reply_msg(update, context, update.message.chat_id, msg_chat_jivo)
+    send_reply_msg(update, context, msg_chat_jivo)
 
 
-def checkout_start(update, context):
+def checkout(update, context):
     query = update.callback_query
-    query.message.reply_text(msg_checkout_place)
-    return ConversationHandler.END
+    chat_id = query.message.chat_id
+    msg_id = context.user_data['msg_id']
+
+    try:
+        context.bot.delete_message(
+            chat_id=chat_id,
+            message_id=msg_id
+            )
+    except BadRequest:
+        pass
+
+    msg = context.bot.send_message(
+        chat_id=chat_id,
+        text=msg_send_phone,
+        reply_markup=send_phone_kb()
+        )
+    context.user_data['msg_id'] = msg.message_id
 
 
+def get_phone(update, context):
+    phone = update.message.contact.phone_number
+    user_id = update.message.from_user.id
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
+    user = session.query(User).filter_by(user_id=user_id).first()
+    user.phone = phone
 
+    context.bot.delete_message(
+        chat_id=update.message.chat_id,
+        message_id=context.user_data['main_menu_msg_id']
+        )
 
+    msg = context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text=msg_start,
+        reply_markup=get_main_menu()
+        )
+    context.user_data['main_menu_msg_id'] = msg.message_id
+
+    send_reply_msg(update, 
+                 context, 
+                 msg_success)
+    session.commit()

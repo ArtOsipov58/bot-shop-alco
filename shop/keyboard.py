@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, 
-                   ReplyKeyboardMarkup)
+                   KeyboardButton, ReplyKeyboardMarkup)
 
 from shop.messages import *
 from shop.models import Category, CartItem, engine, Product, ShoppingCart
@@ -11,6 +11,14 @@ def get_main_menu():
         [btn_catalog],
         [btn_cart, btn_help],
         [btn_chat, btn_call]
+        ]
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
+
+def send_phone_kb():
+    keyboard = [
+        [KeyboardButton(btn_send_phone, request_contact=True)],
+        [btn_back_to_main_menu]
         ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
