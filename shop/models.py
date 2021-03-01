@@ -96,7 +96,7 @@ class ShoppingCart(Base):
             return False
 
         for cart_item in self.cart_items:
-            text += f'{cart_item.product.name}: {str(cart_item.product.price)} x {str(cart_item.quantity)}\n'
+            text += f'{cart_item.product.name}: {str(cart_item.product.price)} руб. x {str(cart_item.quantity)}\n'
         return f'Сейчас в Вашей корзине:\n\n{text}\nОбщая сумма: {str(self.full_sum)} руб. + доставка'
 
     @property
