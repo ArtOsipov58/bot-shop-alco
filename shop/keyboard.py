@@ -23,6 +23,8 @@ def get_edit_products_list(cart_items):
             [InlineKeyboardButton(btn, callback_data=f'prod_edit_{str(cart_item.product.id)}')])
     if not keyboard:
         return False
+
+    keyboard.append([InlineKeyboardButton(btn_do_nothing, callback_data='do_nothing')])
     return InlineKeyboardMarkup(keyboard)
 
 
@@ -34,7 +36,8 @@ class CartMenu:
     def cart_ikb(self):
         keyboard = [
             [InlineKeyboardButton(btn_edit_cart, callback_data='edit_cart'),
-             InlineKeyboardButton(btn_checkout, callback_data='checkout')]]
+             InlineKeyboardButton(btn_checkout, callback_data='checkout')]
+             ]
         return InlineKeyboardMarkup(keyboard)
 
 
