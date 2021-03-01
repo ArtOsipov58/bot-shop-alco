@@ -49,10 +49,34 @@ def main_menu_handl(update, context):
         )
 
 
-    # update.message.reply_text(
-    #     'Главное меню', 
-    #     reply_markup=get_main_menu()
-    #     )
+def main_menu_after_change(update, context):
+    ''' 
+    Переходит в главное меню после того, как 
+    клавиатура менялась
+    '''
+
+    # Удаляем сообщение с основным меню
+    context.bot.delete_message(
+        chat_id=update.message.chat_id,
+        message_id=context.user_data['main_menu_msg_id']
+        )
+
+    # Заменяем его таким же сообщением, с главным меню
+    msg = context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text=msg_start,
+        reply_markup=get_main_menu()
+        )
+    context.user_data['main_menu_msg_id'] = msg.message_id
+
+
+    # import ipdb; ipdb.set_trace()
+
+
+    send_reply_msg(update, context, msg_main_menu)
+
+
+
 
 
 def get_my_id(update, context):
@@ -269,7 +293,6 @@ def send_reply_msg(update, context, text, menu=None, main_menu=False):
                 text=text,
                 reply_markup=menu
                 )
-            # if not main_menu:
             context.user_data['msg_id'] = msg.message_id
 
     else:
@@ -331,7 +354,7 @@ def back_to_cart(update, context):
 
 def del_replykb_messages(update, context):
     pattern = f'({btn_catalog}|{btn_cart}|{btn_help}|'\
-              f'{btn_chat}|{btn_call})'
+              f'{btn_chat}|{btn_call}|{btn_back_to_main_menu})'
 
     query = update.callback_query
     if query:
@@ -460,11 +483,13 @@ def get_phone(update, context):
     user = session.query(User).filter_by(user_id=user_id).first()
     user.phone = phone
 
+    # Удаляем сообщение с основным меню
     context.bot.delete_message(
         chat_id=update.message.chat_id,
         message_id=context.user_data['main_menu_msg_id']
         )
 
+    # Заменяем его таким же сообщением, с главным меню
     msg = context.bot.send_message(
         chat_id=update.message.chat_id,
         text=msg_start,
