@@ -80,15 +80,16 @@ def get_products_list(update, context):
     cat_id = int(query.data.split('_')[-1])
     Session = sessionmaker(bind=engine)
     session = Session()
-    category = session.query(Category).filter_by(id=cat_id).first()
+    product_list = session.query(Product).filter_by(cat_id=cat_id)\
+        .order_by(Product.price).all()
     context.user_data['cat_id'] = cat_id
 
     product_menu = Menu()
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        text=f'Категория: <b>{category.name}</b>',
-        reply_markup=product_menu.get_product_ikb(category.product_list)
+        text=f'Категория: <b>{product_list[0].category.name}</b>',
+        reply_markup=product_menu.get_product_ikb(product_list)
         )
 
 
@@ -102,14 +103,15 @@ def navigate_in_category(update, context):
     session = Session()
 
     cat_id = context.user_data['cat_id']
-    category = session.query(Category).filter_by(id=cat_id).first()
+    product_list = session.query(Product).filter_by(cat_id=cat_id)\
+        .order_by(Product.price).all()
 
     product_menu = Menu()
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=context.user_data['msg_id'],
-        text=f'Категория: <b>{category.name}</b>',
-        reply_markup=product_menu.get_product_ikb(category.product_list, screen_num=screen_num)
+        text=f'Категория: <b>{product_list[0].category.name}</b>',
+        reply_markup=product_menu.get_product_ikb(product_list, screen_num=screen_num)
         )
 
 

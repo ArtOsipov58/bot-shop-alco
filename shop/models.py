@@ -63,7 +63,7 @@ class Product(Base):
 
 
     def __repr__(self):
-        return f'<Product {self.name}>'
+        return f'<Product {self.name}, price={str(self.price)}>'
 
 
 class User(Base):

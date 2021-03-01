@@ -158,6 +158,10 @@ class Menu:
         return ikb_list
 
     def get_product_ikb(self, product_list, screen_num=1):
+
+        # import ipdb; ipdb.set_trace()
+
+
         ikb_list = Menu._get_ikb_list(product_list)
         screen_list = Menu._split_list(ikb_list, self.len_one_screen)
         screen_dict = dict()
