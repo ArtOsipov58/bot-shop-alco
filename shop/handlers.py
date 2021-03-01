@@ -219,20 +219,35 @@ def show_cart_handl(update, context):
         text = msg_empty_cart
         menu = InlineKeyboardMarkup([[]])
 
+    send_reply_msg(update, context, chat_id, text, menu)
+
+
+def send_reply_msg(update, context, chat_id, text, menu=None):
+    del_replykb_messages(update, context)
+
+    if not menu:
+        menu = InlineKeyboardMarkup([[]])
+
     msg_id = context.user_data.get('msg_id')
     if msg_id:
-        msg = context.bot.edit_message_text(
-            chat_id=chat_id,
-            message_id=msg_id,
-            text=text, 
-            reply_markup=menu
-            )
+        try:
+            msg = context.bot.edit_message_text(
+                chat_id=chat_id,
+                message_id=msg_id,
+                text=text, 
+                reply_markup=menu
+                )
+        except BadRequest:
+            pass
     else:
-        msg = context.bot.send_message(
-            chat_id=chat_id,
-            text=text,
-            reply_markup=menu
-            )
+        try:
+            msg = context.bot.send_message(
+                chat_id=chat_id,
+                text=text,
+                reply_markup=menu
+                )
+        except BadRequest:
+            pass
     context.user_data['msg_id'] = msg.message_id
 
 
@@ -298,11 +313,13 @@ def del_replykb_messages(update, context):
     if not result:
         return
 
-    context.bot.delete_message(
-        chat_id=chat_id,
-        message_id=msg_id
-        )
-
+    try:
+        context.bot.delete_message(
+            chat_id=chat_id,
+            message_id=msg_id
+            )
+    except BadRequest:
+        pass
 
 
 def delete_product_from_cart(update, context):
@@ -365,11 +382,18 @@ def edit_cart_handler(update, context):
     session.commit()
 
 
-
-
-
-
 def checkout_start(update, context):
     query = update.callback_query
     query.message.reply_text(msg_checkout_place)
     return ConversationHandler.END
+
+
+
+
+
+def call(update, context):
+    send_reply_msg(update, context, update.message.chat_id, msg_call)
+
+
+def help_handler(update, context):
+    send_reply_msg(update, context, update.message.chat_id, msg_help)
