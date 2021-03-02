@@ -503,7 +503,7 @@ def get_phone(update, context):
 
     msg = msg_new_order(user)
 
-    # send_email(msg, 'Новый заказ')
+    send_email(msg, 'Новый заказ')
 
     # Обнуляем корзину после оформления заказа
     for cart_item in user.shopping_cart[-1].cart_items:
