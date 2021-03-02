@@ -505,5 +505,5 @@ def get_phone(update, context):
 
     msg = msg_new_order(user)
 
-    send_email(msg, 'Новый заказ')
+    # send_email(msg, 'Новый заказ')
     session.commit()
