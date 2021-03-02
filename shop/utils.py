@@ -74,7 +74,8 @@ def send_email(message, subject):
     msg['From'] = config.EMAIL_LOGIN
     msg['To'] = config.RECIPIENT_EMAIL
 
-    s = smtplib.SMTP(config.HOST, 587, timeout=15)
+    # s = smtplib.SMTP(config.HOST, 587, timeout=15)
+    s = smtplib.SMTP(config.HOST, 465, timeout=15)
     # s.set_debuglevel(1)
     try:
         s.starttls()
