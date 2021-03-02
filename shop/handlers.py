@@ -11,6 +11,7 @@ from shop.messages import *
 from shop.models import Category, engine, Product, ShoppingCart, User
 # from shop.shopping_cart import CartMenu
 from shop.keyboard import EditProductMenu, ProductMenu, Menu
+from shop.utils import send_email
 
 
 logging.basicConfig(
@@ -55,11 +56,13 @@ def main_menu_after_change(update, context):
     клавиатура менялась
     '''
 
-    # Удаляем сообщение с основным меню
-    context.bot.delete_message(
-        chat_id=update.message.chat_id,
-        message_id=context.user_data['main_menu_msg_id']
-        )
+    main_menu_msg_id = context.user_data.get('main_menu_msg_id')
+    if main_menu_msg_id:
+        # Удаляем сообщение с основным меню
+        context.bot.delete_message(
+            chat_id=update.message.chat_id,
+            message_id=main_menu_msg_id
+            )
 
     # Заменяем его таким же сообщением, с главным меню
     msg = context.bot.send_message(
@@ -228,11 +231,8 @@ def show_cart_handl(update, context):
     del_replykb_messages(update, context)
     query = update.callback_query
     if query:
-        chat_id = query.message.chat_id
         user_id = query.from_user.id
-    else:
-        chat_id = update.message.chat_id
-        user_id = update.message.from_user.id
+    else: user_id = update.message.from_user.id
 
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -483,11 +483,13 @@ def get_phone(update, context):
     user = session.query(User).filter_by(user_id=user_id).first()
     user.phone = phone
 
-    # Удаляем сообщение с основным меню
-    context.bot.delete_message(
-        chat_id=update.message.chat_id,
-        message_id=context.user_data['main_menu_msg_id']
-        )
+    main_menu_msg_id = context.user_data.get('main_menu_msg_id')
+    if main_menu_msg_id:
+        # Удаляем сообщение с основным меню
+        context.bot.delete_message(
+            chat_id=update.message.chat_id,
+            message_id=main_menu_msg_id
+            )
 
     # Заменяем его таким же сообщением, с главным меню
     msg = context.bot.send_message(
@@ -496,9 +498,12 @@ def get_phone(update, context):
         reply_markup=get_main_menu()
         )
     context.user_data['main_menu_msg_id'] = msg.message_id
-    
 
     send_reply_msg(update, 
                  context, 
                  msg_success)
+
+    msg = msg_new_order(user)
+
+    send_email(msg, 'Новый заказ')
     session.commit()

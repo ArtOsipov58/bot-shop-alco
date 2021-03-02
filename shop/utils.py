@@ -4,12 +4,15 @@ parent_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.dirname(parent_dir))
 
 
+from email.mime.text import MIMEText
+from email.header import Header
+import smtplib
 
 import pandas as pd
-
 from sqlalchemy.orm import sessionmaker
 
 from shop.models import Category, engine, Product
+import config
 
 
 def import_price():
@@ -63,3 +66,19 @@ def import_price():
             session.add(product)
 
     session.commit()
+
+
+def send_email(message, subject):
+    msg = MIMEText(message, 'plain', 'utf-8')
+    msg['Subject'] = Header(subject, 'utf-8')
+    msg['From'] = config.EMAIL_LOGIN
+    msg['To'] = config.RECIPIENT_EMAIL
+
+    s = smtplib.SMTP(config.HOST, 587, timeout=15)
+    # s.set_debuglevel(1)
+    try:
+        s.starttls()
+        s.login(config.EMAIL_LOGIN, config.EMAIL_PASSWD)
+        s.sendmail(msg['From'], config.RECIPIENT_EMAIL, msg.as_string())
+    finally:
+        s.quit()

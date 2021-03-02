@@ -34,3 +34,14 @@ msg_help = 'По всем вопросам пишите на @alco_support'
 msg_chat_jivo = 'Перейдите в чат с оператором: @some_bot'
 
 msg_success = 'Мы получили Ваш заказ. Оператор перезвонит Вам в течение трех минут!'
+
+
+def msg_new_order(user):
+    text = f'''Новый заказ:
+
+{user.shopping_cart[-1].shopping_cart_content}
+
+Общая сумма: {str(user.shopping_cart[-1].full_sum)} руб.
+
+Заказ оформил {user.first_name}, телефон: {user.phone}'''
+    return text

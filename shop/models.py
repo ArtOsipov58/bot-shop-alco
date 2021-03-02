@@ -91,13 +91,17 @@ class ShoppingCart(Base):
 
     @property
     def show_cart_items(self):
-        text = ''
         if not self.cart_items:
             return False
+        return f'Сейчас в Вашей корзине:\n\n{self.shopping_cart_content}\nОбщая сумма: {str(self.full_sum)} руб. + доставка'
 
+    @property
+    def shopping_cart_content(self):
+        text = ''
         for cart_item in self.cart_items:
             text += f'{cart_item.product.name}: {str(cart_item.product.price)} руб. x {str(cart_item.quantity)}\n'
-        return f'Сейчас в Вашей корзине:\n\n{text}\nОбщая сумма: {str(self.full_sum)} руб. + доставка'
+        return text
+
 
     @property
     def full_sum(self):
