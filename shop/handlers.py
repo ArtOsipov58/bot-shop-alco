@@ -70,6 +70,8 @@ def main_menu_after_change(update, context):
     context.user_data['main_menu_msg_id'] = msg.message_id
 
 
+
+
     # import ipdb; ipdb.set_trace()
 
 
@@ -260,11 +262,6 @@ def send_reply_msg(update, context, text, menu=None, main_menu=False):
     if not menu:
         menu = InlineKeyboardMarkup([[]])
 
-
-    # import ipdb; ipdb.set_trace()
-
-
-
     msg_id = context.user_data.get('msg_id')
     if msg_id:
         try:
@@ -353,6 +350,9 @@ def back_to_cart(update, context):
 
 
 def del_replykb_messages(update, context):
+    '''
+    Удаляем сообщения от репли клавиатуры
+    '''
     pattern = f'({btn_catalog}|{btn_cart}|{btn_help}|'\
               f'{btn_chat}|{btn_call}|{btn_back_to_main_menu})'
 
@@ -496,6 +496,7 @@ def get_phone(update, context):
         reply_markup=get_main_menu()
         )
     context.user_data['main_menu_msg_id'] = msg.message_id
+    
 
     send_reply_msg(update, 
                  context, 
