@@ -499,11 +499,14 @@ def get_phone(update, context):
         )
     context.user_data['main_menu_msg_id'] = msg.message_id
 
-    send_reply_msg(update, 
-                 context, 
-                 msg_success)
+    send_reply_msg(update, context, msg_success)
 
     msg = msg_new_order(user)
 
     # send_email(msg, 'Новый заказ')
+
+    # Обнуляем корзину после оформления заказа
+    for cart_item in user.shopping_cart[-1].cart_items:
+        session.delete(cart_item)
+
     session.commit()
