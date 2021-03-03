@@ -11,6 +11,7 @@ from sqlalchemy import (Table, Column, Integer, Numeric,
                         String, DateTime, ForeignKey) 
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship, sessionmaker
+from config import IMAGES_BASE_URL
 
 Base = declarative_base()
 
@@ -43,11 +44,12 @@ class Product(Base):
 
     @property
     def text(self):
+        img_path = IMAGES_BASE_URL + self.image
         text = f'''Просмотр товара в категории: {self.category.name}
 
 <b>{self.name}</b>
 
-<b>Цена:</b> {str(self.price)} руб.<a href="http://i.imgur.com/I86rTVl.jpg">&#8288;</a>'''
+<b>Цена:</b> {str(self.price)} руб.<a href="{img_path}">&#8288;</a>'''
         return text
 
 

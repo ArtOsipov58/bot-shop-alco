@@ -91,11 +91,3 @@ def send_email(message, subject):
         s.sendmail(msg['From'], config.RECIPIENT_EMAIL, msg.as_string())
     finally:
         s.quit()
-
-
-def get_env_variable(name):
-    try:
-        return os.environ[name]
-    except KeyError:
-        message = "Expected environment variable '{}' not set.".format(name)
-        raise Exception(message)

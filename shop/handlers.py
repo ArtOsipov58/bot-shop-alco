@@ -5,12 +5,11 @@ import traceback
 from sqlalchemy.orm import sessionmaker
 from telegram import InlineKeyboardMarkup
 from telegram.error import BadRequest
-from telegram.ext import ConversationHandler
 
 from config import ENGINE
 from shop.keyboard import *
 from shop.messages import *
-from shop.models import Category, Product, ShoppingCart, User
+from shop.models import CartItem, Product, ShoppingCart, User
 from shop.keyboard import EditProductMenu, ProductMenu, Menu
 from shop.utils import import_price, send_email
 
