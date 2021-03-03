@@ -1,13 +1,15 @@
+from datetime import timedelta
 import logging
 import os
 import re
+import requests
 import traceback
 
 from sqlalchemy.orm import sessionmaker
 from telegram import InlineKeyboardMarkup
 from telegram.error import BadRequest
 
-from config import ENGINE
+from config import ENGINE, IMAGES_BASE_URL
 from shop.keyboard import *
 from shop.messages import *
 from shop.models import CartItem, Order, Product, ShoppingCart, User
@@ -532,3 +534,45 @@ def price_handler(update, context):
         logging.info(str(traceback.format_exc()))
         return
     update.message.reply_text('Прайс успешно импортирован')
+
+
+def setup_job(update, context):
+    context.job_queue.run_once(
+        update_all_photos,
+        timedelta(seconds=1),
+        context=update.message.chat_id
+        )
+
+
+def update_all_photos(context):
+    job = context.job
+    Session = sessionmaker(bind=ENGINE)
+    session = Session()
+    for product in session.query(Product):
+        url = IMAGES_BASE_URL + product.image
+        try:
+            resp = requests.get(url)
+            resp.raise_for_status()
+        except requests.RequestException:
+            product.image = 'zaglushka.jpg'
+            session.commit()
+
+    context.bot.send_message(
+        chat_id=job.context,
+        text='Обновление фото завершено')
+
+
+def check_photo(context):
+    Session = sessionmaker(bind=ENGINE)
+    session = Session()
+    for product in session.query(Product).filter_by(image='zaglushka.jpg'):
+        image_file = str(product.artikul) + '.jpg'
+        url = IMAGES_BASE_URL + image_file
+        try:
+            resp = requests.get(url)
+            resp.raise_for_status()
+            product.image = image_file
+            session.commit()
+
+        except requests.RequestException:
+            pass
