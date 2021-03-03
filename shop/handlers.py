@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 import traceback
 
@@ -513,8 +514,16 @@ def get_phone(update, context):
 
 
 def price_handler(update, context):
+    # Скачиваем прайс в текущую директорию
+    document = update.message.document
+    f = context.bot.get_file(document.file_id)
+    price_path = os.path.join(os.getcwd(), 'price.xlsx')
+    if os.path.exists(price_path):
+        os.remove(price_path)
+    f.download(price_path)
+
     try:
-        import_price()
+        import_price(price_path)
     except Exception:
         update.message.reply_text('Возникла ошибка при импорте прайса, детали в логе на сервере')
         logging.info(str(traceback.format_exc()))

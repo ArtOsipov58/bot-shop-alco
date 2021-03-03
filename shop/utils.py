@@ -16,14 +16,14 @@ from shop.models import Category, Product
 import config
 
 
-def import_price():
+def import_price(price_path):
     Session = sessionmaker(bind=config.ENGINE)
     session = Session()
 
     exclude_cat_list = ['Хозтовары', 'Доставка']
 
     # Добавляем новые категории (если есть)
-    df = pd.read_excel('НОВАЯ выгрузка.xlsx')
+    df = pd.read_excel(price_path)
     for index, row in df.iterrows():
         if row['Архивный'] == 'да':
             continue
