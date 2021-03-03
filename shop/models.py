@@ -16,6 +16,14 @@ from config import IMAGES_BASE_URL
 Base = declarative_base()
 
 
+order_products = Table(
+    "order_products",
+    Base.metadata,
+    Column("order_id", Integer, ForeignKey("orders.id")),
+    Column("product_id", Integer, ForeignKey("product.id"))
+)
+
+
 class Category(Base):
     __tablename__ = 'category'
 
@@ -41,6 +49,11 @@ class Product(Base):
 
     category = relationship('Category', back_populates='product_list')
     cart_items = relationship('CartItem', back_populates='product')
+    orders_list = relationship(
+        'Order', 
+        secondary=order_products, 
+        back_populates='product_list'
+        )
 
     @property
     def text(self):
@@ -51,16 +64,6 @@ class Product(Base):
 
 <b>Цена:</b> {str(self.price)} руб.<a href="{img_path}">&#8288;</a>'''
         return text
-
-
-    # def get_sum_all(self):
-    #     text = f''
-    #     return self.price * self.cart_item.quantity
-
-
-
-
-
 
     def __repr__(self):
         return f'<Product {self.name}, price={str(self.price)}>'
@@ -74,6 +77,7 @@ class User(Base):
     phone = Column(String(15))
 
     shopping_cart = relationship('ShoppingCart', back_populates='user')
+    orders_list = relationship('Order', back_populates='user')
 
     def __repr__(self):
         return f'<User id={str(self.id)}, name={self.first_name}>'
@@ -102,18 +106,12 @@ class ShoppingCart(Base):
             text += f'{cart_item.product.name}: {str(cart_item.product.price)} руб. x {str(cart_item.quantity)}\n'
         return text
 
-
     @property
     def full_sum(self):
         full_sum = 0
         for cart_item in self.cart_items:
             full_sum += cart_item.product.price * cart_item.quantity
         return full_sum
-
-
-
-
-
 
 
 class CartItem(Base):
@@ -128,7 +126,6 @@ class CartItem(Base):
     shopping_cart = relationship('ShoppingCart', back_populates='cart_items')
     product = relationship('Product', back_populates='cart_items')
 
-
     @classmethod
     def delete_from_cart(cls, session, cart_item_id):
         cart_item = session.query(CartItem)\
@@ -137,36 +134,20 @@ class CartItem(Base):
         session.commit()
 
 
+class Order(Base):
+    __tablename__ = 'orders'
 
-# class Order(Base):
-#     __tablename__ = 'order'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.user_id'), nullable=False)
+    created_date = Column(DateTime, default=datetime.now())
 
-#     id = Column(Integer, primary_key=True)
-#     user_id = 
-#     created_date = 
+    product_list = relationship(
+        'Product', 
+        secondary=order_products, 
+        back_populates='orders_list'
+        )
 
+    user = relationship('User', back_populates='orders_list')
 
-
-
-# Base.metadata.create_all(engine)
-
-# Session = sessionmaker(bind=engine)
-# session =Session()
-
-# add_cat
-# subcat = SubCategory(name='Обувь')
-# session.add(category)
-# session.commit()
-
-
-# product = session.query(Product).filter_by(id=1).first()
-# print(product.category)
-
-# product = Product(
-#     name='Трусы Улица Сезам', 
-#     price=100,
-#     image='1.jpg',
-#     subcat_id=2)
-
-# session.add(product)
-# session.commit()
+    def __repr__(self):
+        return f'<Order id={str(self.id)}>'

@@ -10,7 +10,7 @@ from telegram.error import BadRequest
 from config import ENGINE
 from shop.keyboard import *
 from shop.messages import *
-from shop.models import CartItem, Product, ShoppingCart, User
+from shop.models import CartItem, Order, Product, ShoppingCart, User
 from shop.keyboard import EditProductMenu, ProductMenu, Menu
 from shop.utils import import_price, send_email
 
@@ -502,13 +502,18 @@ def get_phone(update, context):
 
     send_reply_msg(update, context, msg_success)
 
-    msg = msg_new_order(user)
-
-    send_email(msg, 'Новый заказ')
+    order = Order(user_id=user_id)
+    session.add(order)
 
     # Обнуляем корзину после оформления заказа
     for cart_item in user.shopping_cart[-1].cart_items:
+        order.product_list.append(cart_item.product)
         session.delete(cart_item)
+
+    msg = msg_new_order(user, order)
+    send_email(msg, 'Новый заказ')
+
+
 
     session.commit()
 

@@ -36,8 +36,8 @@ msg_chat_jivo = 'Перейдите в чат с оператором: @some_bot
 msg_success = 'Мы получили Ваш заказ. Оператор перезвонит Вам в течение трех минут!'
 
 
-def msg_new_order(user):
-    text = f'''Новый заказ:
+def msg_new_order(user, order):
+    text = f'''Новый заказ # {str(order.id)}:
 
 {user.shopping_cart[-1].shopping_cart_content}
 
