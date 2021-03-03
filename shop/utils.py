@@ -6,17 +6,18 @@ sys.path.append(os.path.dirname(parent_dir))
 
 from email.mime.text import MIMEText
 from email.header import Header
+import os
 import smtplib
 
 import pandas as pd
 from sqlalchemy.orm import sessionmaker
 
-from shop.models import Category, engine, Product
+from shop.models import Category, Product
 import config
 
 
 def import_price():
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=config.ENGINE)
     session = Session()
 
     exclude_cat_list = ['Хозтовары', 'Доставка']
@@ -52,18 +53,26 @@ def import_price():
         if 'Доставка' in row['Наименование']:
             continue
 
-        if session.query(Product).filter_by(artikul=row['Артикул'])\
-            .count() == 0:
+        # Если товара нет в базе
+        query = session.query(Product).filter_by(artikul=int(row['Артикул']))
+        if query.count() == 0:
             category = session.query(Category).filter_by(
                 name=row['Группы']
                 ).first()
             product = Product(
                 name=row['Наименование'],
                 price=int(float(row['Цена: Цена продажи'].replace(',', '.'))),
-                artikul=row['Артикул'],
+                artikul=int(row['Артикул']),
+                image=str(int(row['Артикул'])) + '.jpg',
                 cat_id=category.id
                 )
             session.add(product)
+        else:
+            # Если товар есть в базе, то обновляем инфу
+            product = query.first()
+            product.name = row['Наименование']
+            product.price = int(float(row['Цена: Цена продажи'].replace(',', '.')))
+            product.image = str(int(row['Артикул'])) + '.jpg'
 
     session.commit()
 
@@ -74,12 +83,19 @@ def send_email(message, subject):
     msg['From'] = config.EMAIL_LOGIN
     msg['To'] = config.RECIPIENT_EMAIL
 
-    # s = smtplib.SMTP(config.HOST, 587, timeout=15)
     s = smtplib.SMTP(config.HOST, config.PORT, timeout=10)
-    # s.set_debuglevel(1)
+
     try:
         s.starttls()
         s.login(config.EMAIL_LOGIN, config.EMAIL_PASSWD)
         s.sendmail(msg['From'], config.RECIPIENT_EMAIL, msg.as_string())
     finally:
         s.quit()
+
+
+def get_env_variable(name):
+    try:
+        return os.environ[name]
+    except KeyError:
+        message = "Expected environment variable '{}' not set.".format(name)
+        raise Exception(message)

@@ -7,14 +7,12 @@ sys.path.append(os.path.dirname(parent_dir))
 
 from datetime import datetime
 
-from sqlalchemy import (create_engine, Table, Column, Integer, Numeric, 
+from sqlalchemy import (Table, Column, Integer, Numeric, 
                         String, DateTime, ForeignKey) 
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship, sessionmaker
 
 Base = declarative_base()
-engine = create_engine('sqlite:///base.db')
-
 
 
 class Category(Base):
@@ -34,9 +32,9 @@ class Product(Base):
     __tablename__ = 'product'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(20), nullable=False)
+    name = Column(String(100), nullable=False)
     price = Column(Integer, nullable=False)
-    artikul = Column(String(20), unique=True)
+    artikul = Column(Integer, unique=True)
     image = Column(String(50))
     cat_id = Column(Integer, ForeignKey('category.id'))
 

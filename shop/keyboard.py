@@ -2,8 +2,10 @@ from sqlalchemy.orm import sessionmaker
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, 
                    KeyboardButton, ReplyKeyboardMarkup)
 
+from config import ENGINE
 from shop.messages import *
-from shop.models import Category, CartItem, engine, Product, ShoppingCart
+from shop.models import Category
+
 
 
 def get_main_menu():
@@ -151,7 +153,7 @@ class Menu:
 
     @staticmethod
     def get_cat_ikb():
-        Session = sessionmaker(bind=engine)
+        Session = sessionmaker(bind=ENGINE)
         session = Session()
 
         ikb_list = list()

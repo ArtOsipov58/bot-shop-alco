@@ -1,17 +1,18 @@
 import logging
 import re
+import traceback
 
 from sqlalchemy.orm import sessionmaker
 from telegram import InlineKeyboardMarkup
 from telegram.error import BadRequest
 from telegram.ext import ConversationHandler
 
+from config import ENGINE
 from shop.keyboard import *
 from shop.messages import *
-from shop.models import Category, engine, Product, ShoppingCart, User
-# from shop.shopping_cart import CartMenu
+from shop.models import Category, Product, ShoppingCart, User
 from shop.keyboard import EditProductMenu, ProductMenu, Menu
-from shop.utils import send_email
+from shop.utils import import_price, send_email
 
 
 logging.basicConfig(
@@ -23,7 +24,7 @@ logging.basicConfig(
 
 def start(update, context):
     user_id = update.message.from_user.id
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=ENGINE)
     session = Session()
     if session.query(User).filter_by(user_id=user_id).count() == 0:
         user = User(
@@ -111,7 +112,7 @@ def get_products_list(update, context):
     '''
     query = update.callback_query
     cat_id = int(query.data.split('_')[-1])
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=ENGINE)
     session = Session()
     product_list = session.query(Product).filter_by(cat_id=cat_id)\
         .order_by(Product.price).all()
@@ -132,7 +133,7 @@ def navigate_in_category(update, context):
     '''
     query = update.callback_query
     screen_num = int(query.data.split('_')[-1])
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=ENGINE)
     session = Session()
 
     cat_id = context.user_data['cat_id']
@@ -152,7 +153,7 @@ def get_product_cart(update, context):
     query = update.callback_query
     product_id = int(query.data.split('_')[-1])
 
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=ENGINE)
     session = Session()
 
     product = session.query(Product).filter_by(id=product_id).first()
@@ -194,7 +195,7 @@ def update_cart(update, context):
     product_id = int(query.data.split('_')[-1])
     menu = context.user_data['cart_menu']
 
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=ENGINE)
     session = Session()
 
     shopping_cart = session.query(ShoppingCart)\
@@ -234,7 +235,7 @@ def show_cart_handl(update, context):
         user_id = query.from_user.id
     else: user_id = update.message.from_user.id
 
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=ENGINE)
     session = Session()
 
     shopping_cart = session.query(ShoppingCart)\
@@ -311,7 +312,7 @@ def back_to_cart(update, context):
     product_id = int(query.data.split('_')[-1])
     menu = context.user_data['cart_menu']
 
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=ENGINE)
     session = Session()
 
     cart_item = session.query(CartItem)\
@@ -385,7 +386,7 @@ def delete_product_from_cart(update, context):
     query = update.callback_query
     cart_item_id = int(query.data.split('_')[-1])
 
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=ENGINE)
     session = Session()
     cart_item = session.query(CartItem).filter_by(id=cart_item_id).first()
     session.delete(cart_item)
@@ -416,7 +417,7 @@ def delete_product_from_cart(update, context):
 def edit_cart_handler(update, context):
     query = update.callback_query
     user_id = query.from_user.id
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=ENGINE)
     session = Session()
 
     shopping_cart = session.query(ShoppingCart).filter_by(user_id=user_id)\
@@ -477,7 +478,7 @@ def checkout(update, context):
 def get_phone(update, context):
     phone = update.message.contact.phone_number
     user_id = update.message.from_user.id
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=ENGINE)
     session = Session()
 
     user = session.query(User).filter_by(user_id=user_id).first()
@@ -510,3 +511,13 @@ def get_phone(update, context):
         session.delete(cart_item)
 
     session.commit()
+
+
+def price_handler(update, context):
+    try:
+        import_price()
+    except Exception:
+        update.message.reply_text('Возникла ошибка при импорте прайса, детали в логе на сервере')
+        logging.info(str(traceback.format_exc()))
+        return
+    update.message.reply_text('Прайс успешно импортирован')
