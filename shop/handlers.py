@@ -513,8 +513,6 @@ def get_phone(update, context):
     msg = msg_new_order(user, order)
     send_email(msg, 'Новый заказ')
 
-
-
     session.commit()
 
 
