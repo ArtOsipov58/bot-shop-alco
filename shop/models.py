@@ -138,7 +138,12 @@ class CartItem(Base):
 
 
 
+# class Order(Base):
+#     __tablename__ = 'order'
 
+#     id = Column(Integer, primary_key=True)
+#     user_id = 
+#     created_date = 
 
 
 
