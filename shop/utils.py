@@ -74,6 +74,7 @@ def import_price(price_path):
             product.price = int(float(row['Цена: Цена продажи'].replace(',', '.')))
             product.image = str(int(row['Артикул'])) + '.jpg'
 
+    set_category_order(session)
     session.commit()
 
 
@@ -91,3 +92,38 @@ def send_email(message, subject):
         s.sendmail(msg['From'], config.RECIPIENT_EMAIL, msg.as_string())
     finally:
         s.quit()
+
+
+def set_category_order(session):
+    for category in session.query(Category):
+        if category.name == 'Виски':
+            category.order = 1
+        elif category.name == 'Водка':
+            category.order = 2
+        elif category.name == 'Пиво':
+            category.order = 3
+        elif category.name == 'Вино':
+            category.order = 4
+        elif category.name == 'Коньяк':
+            category.order = 5
+        elif category.name == 'Ром':
+            category.order = 6
+        elif category.name == 'Шампанское':
+            category.order = 7
+        elif category.name == 'Вермут':
+            category.order = 8
+        elif category.name == 'Текила':
+            category.order = 9
+        elif category.name == 'Ликер':
+            category.order = 10
+        elif category.name == 'Джин':
+            category.order = 11
+        elif category.name == 'Нужное':
+            category.order = 12
+        elif category.name == 'Закуски':
+            category.order = 13
+        elif category.name == 'Напитки':
+            category.order = 14
+        elif category.name == 'Сигареты':
+            category.order = 15
+    session.commit()
