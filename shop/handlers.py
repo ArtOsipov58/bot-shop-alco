@@ -542,9 +542,11 @@ def setup_job(update, context):
         timedelta(seconds=1),
         context=update.message.chat_id
         )
+    update.message.reply_text('Обновление фото началось...')
 
 
 def update_all_photos(context):
+    logging.info('Запускаем обновление всех фото')
     job = context.job
     Session = sessionmaker(bind=ENGINE)
     session = Session()
@@ -560,6 +562,7 @@ def update_all_photos(context):
     context.bot.send_message(
         chat_id=job.context,
         text='Обновление фото завершено')
+    logging.info('Обновили все фото')
 
 
 def check_photo(context):
@@ -576,3 +579,4 @@ def check_photo(context):
 
         except requests.RequestException:
             pass
+    logging.info('Сделали регулярную проверку всех фото')
