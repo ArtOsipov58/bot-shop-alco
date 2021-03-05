@@ -457,17 +457,12 @@ def chat_handler(update, context):
 
 
 def checkout(update, context):
+    ''' 
+    Нажал "Оформить заказ"
+    '''
     query = update.callback_query
     chat_id = query.message.chat_id
-    msg_id = context.user_data['msg_id']
-
-    try:
-        context.bot.delete_message(
-            chat_id=chat_id,
-            message_id=msg_id
-            )
-    except BadRequest:
-        pass
+    context.user_data['checkout_msg_id'] = context.user_data['msg_id']
 
     msg = context.bot.send_message(
         chat_id=chat_id,
@@ -493,6 +488,15 @@ def get_phone(update, context):
             chat_id=update.message.chat_id,
             message_id=main_menu_msg_id
             )
+
+    # Удаляем сообщение с корзиной
+    try:
+        context.bot.delete_message(
+            chat_id=update.message.chat_id,
+            message_id=context.user_data['checkout_msg_id']
+            )
+    except BadRequest:
+        pass
 
     # Заменяем его таким же сообщением, с главным меню
     msg = context.bot.send_message(
