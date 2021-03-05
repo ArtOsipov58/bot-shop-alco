@@ -464,6 +464,12 @@ def checkout(update, context):
     chat_id = query.message.chat_id
     context.user_data['checkout_msg_id'] = context.user_data['msg_id']
 
+    # Удаляем кнопки в сообщении с содержимым корзины
+    context.bot.edit_message_reply_markup(
+        chat_id=chat_id,
+        message_id=context.user_data['checkout_msg_id']
+        )
+
     msg = context.bot.send_message(
         chat_id=chat_id,
         text=msg_send_phone,
