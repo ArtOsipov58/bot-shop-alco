@@ -53,5 +53,5 @@ def msg_new_order(user, order):
 
 Сумма без доставки: {str(user.shopping_cart[-1].full_sum)} руб.
 
-Заказ оформил {user.first_name}, телефон: {user.phone}'''
+Заказ оформил {user.first_name}, телефон: +{user.phone}'''
     return text
