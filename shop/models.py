@@ -80,7 +80,7 @@ class User(Base):
     orders_list = relationship('Order', back_populates='user')
 
     def __repr__(self):
-        return f'<User id={str(self.id)}, name={self.first_name}>'
+        return f'<User id={str(self.user_id)}, name={self.first_name}>'
 
 
 class ShoppingCart(Base):

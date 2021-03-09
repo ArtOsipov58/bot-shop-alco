@@ -74,17 +74,7 @@ def main_menu_after_change(update, context):
         reply_markup=get_main_menu()
         )
     context.user_data['main_menu_msg_id'] = msg.message_id
-
-
-
-
-    # import ipdb; ipdb.set_trace()
-
-
     send_reply_msg(update, context, msg_main_menu)
-
-
-
 
 
 def get_my_id(update, context):
@@ -101,7 +91,6 @@ def select_category(update, context):
     else: chat_id = update.message.chat_id
 
     text = 'Выберите категорию'
-
 
     send_reply_msg(update, context, text, menu=menu.get_cat_ikb())
 
@@ -479,13 +468,27 @@ def checkout(update, context):
 
 
 def get_phone(update, context):
-    phone = update.message.contact.phone_number
     user_id = update.message.from_user.id
     Session = sessionmaker(bind=ENGINE)
     session = Session()
-
     user = session.query(User).filter_by(user_id=user_id).first()
-    user.phone = phone
+
+
+    import ipdb; ipdb.set_trace()
+
+
+    contact = update.message.contact
+    if contact:
+        phone = contact.phone_number
+        user.phone = phone
+    else:
+        phone = update.message.text
+
+        # Если телефон валидный, то записываем его в базу
+        pattern = '((8|\+7|7)[\- ]??(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,15})'
+        result = re.search(pattern, phone)
+        if result:
+            user.phone = result.group(0).strip()
 
     main_menu_msg_id = context.user_data.get('main_menu_msg_id')
     if main_menu_msg_id:
@@ -494,6 +497,15 @@ def get_phone(update, context):
             chat_id=update.message.chat_id,
             message_id=main_menu_msg_id
             )
+
+    # Удаляем сообщение в котором пользователь ввёл телефон
+    try:
+        context.bot.delete_message(
+            chat_id=update.message.chat_id,
+            message_id=update.message.message_id
+            )
+    except BadRequest:
+        pass
 
     # Удаляем сообщение с корзиной
     try:
