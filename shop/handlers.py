@@ -473,10 +473,6 @@ def get_phone(update, context):
     session = Session()
     user = session.query(User).filter_by(user_id=user_id).first()
 
-
-    import ipdb; ipdb.set_trace()
-
-
     contact = update.message.contact
     if contact:
         phone = contact.phone_number

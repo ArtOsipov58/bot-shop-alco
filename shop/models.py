@@ -70,7 +70,7 @@ class Product(Base):
 
 
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
 
     user_id = Column(Integer, primary_key=True)
     first_name = Column(String(15), nullable=False)
@@ -87,7 +87,7 @@ class ShoppingCart(Base):
     __tablename__ = 'shopping_cart'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.user_id'), unique=True)
+    user_id = Column(Integer, ForeignKey('users.user_id'), unique=True)
     created_date = Column(DateTime, default=datetime.now())
 
     cart_items = relationship('CartItem', back_populates='shopping_cart')
@@ -138,7 +138,7 @@ class Order(Base):
     __tablename__ = 'orders'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.user_id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     created_date = Column(DateTime, default=datetime.now())
 
     product_list = relationship(
