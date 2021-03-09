@@ -114,6 +114,8 @@ class EditProductMenu(ProductMenu):
              InlineKeyboardButton(emoji_minus, callback_data='minus'),
              InlineKeyboardButton(emoji_plus, callback_data='add')],
 
+             [InlineKeyboardButton(btn_checkout, callback_data='checkout_from_cart')],
+
              [InlineKeyboardButton(btn_back_to_cart, callback_data=f'back_to_cart_{str(self.product.id)}')]
             ]
         if self._product_in_cart:
