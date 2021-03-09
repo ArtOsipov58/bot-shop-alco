@@ -47,7 +47,7 @@ msg_success = 'Мы получили Ваш заказ. Оператор пер�
 
 
 def msg_new_order(user, order, phone):
-    text = f'''Новый заказ # {str(order.id)}:
+    text = f'''Новый заказ {str(order.id)}:
 
 {user.shopping_cart[-1].shopping_cart_content}
 
