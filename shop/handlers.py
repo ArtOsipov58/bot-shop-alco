@@ -254,7 +254,6 @@ def send_reply_msg(update, context, text, menu=None, main_menu=False):
     if not menu:
         menu = InlineKeyboardMarkup([[]])
 
-
     if context.user_data.get('checkout_msg_id'):
         try:
 
@@ -264,8 +263,6 @@ def send_reply_msg(update, context, text, menu=None, main_menu=False):
                 )
         except BadRequest:
             pass
-
-
 
     msg_id = context.user_data.get('msg_id')
     if msg_id:
