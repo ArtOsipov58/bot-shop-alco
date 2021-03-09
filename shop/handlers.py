@@ -254,6 +254,19 @@ def send_reply_msg(update, context, text, menu=None, main_menu=False):
     if not menu:
         menu = InlineKeyboardMarkup([[]])
 
+
+    if context.user_data.get('checkout_msg_id'):
+        try:
+
+            context.bot.delete_message(
+                chat_id=chat_id,
+                message_id=context.user_data['checkout_msg_id']
+                )
+        except BadRequest:
+            pass
+
+
+
     msg_id = context.user_data.get('msg_id')
     if msg_id:
         try:
@@ -465,6 +478,43 @@ def checkout(update, context):
         reply_markup=send_phone_kb()
         )
     context.user_data['msg_id'] = msg.message_id
+
+
+def checkout_from_cart(update, context):
+    Session = sessionmaker(bind=ENGINE)
+    session = Session()
+
+    query = update.callback_query
+    user_id = query.from_user.id
+    shopping_cart = session.query(ShoppingCart)\
+        .filter_by(user_id=user_id).first()
+    text = shopping_cart.show_cart_items
+
+    msg = context.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=text
+        )
+    context.user_data['checkout_msg_id'] = msg.message_id
+
+    try:
+        context.bot.delete_message(
+            chat_id=query.message.chat_id,
+            message_id=context.user_data['msg_id']
+            )
+    except BadRequest:
+        pass
+
+
+    msg = context.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=msg_send_phone,
+        reply_markup=send_phone_kb()
+        )
+    context.user_data['msg_id'] = msg.message_id
+
+
+    # send_reply_msg(update, context, msg_send_phone, menu=send_phone_kb())
+
 
 
 def get_phone(update, context):

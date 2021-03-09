@@ -91,7 +91,7 @@ class ProductMenu:
              InlineKeyboardButton(emoji_plus, callback_data='add')],
 
              [InlineKeyboardButton(btn_add_to_cart, callback_data=f'update_cart_{str(self.product.id)}')],
-             [InlineKeyboardButton(btn_checkout, callback_data='checkout')],
+             [InlineKeyboardButton(btn_checkout, callback_data='checkout_from_cart')],
 
             [InlineKeyboardButton(btn_back, callback_data=f'back_to_product_list_{str(self.product.category.id)}')]
             ]
