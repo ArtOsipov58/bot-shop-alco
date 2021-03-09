@@ -46,12 +46,12 @@ msg_chat_jivo = 'Перейдите в чат с оператором: @alcopres
 msg_success = 'Мы получили Ваш заказ. Оператор перезвонит Вам в течение трех минут!'
 
 
-def msg_new_order(user, order):
+def msg_new_order(user, order, phone):
     text = f'''Новый заказ # {str(order.id)}:
 
 {user.shopping_cart[-1].shopping_cart_content}
 
 Сумма без доставки: {str(user.shopping_cart[-1].full_sum)} руб.
 
-Заказ оформил {user.first_name}, телефон: +{user.phone}'''
+Заказ оформил {user.first_name}, телефон: {phone}'''
     return text

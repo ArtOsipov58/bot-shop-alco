@@ -530,7 +530,7 @@ def get_phone(update, context):
         order.product_list.append(cart_item.product)
         session.delete(cart_item)
 
-    msg = msg_new_order(user, order)
+    msg = msg_new_order(user, order, phone)
     send_email(msg, f'Новый заказ №{str(order.id)}')
 
     session.commit()
