@@ -110,11 +110,12 @@ def get_products_list(update, context):
     context.user_data['cat_id'] = cat_id
 
     product_menu = Menu()
-    context.bot.edit_message_text(
-        chat_id=query.message.chat_id,
-        message_id=context.user_data['msg_id'],
-        text=f'Категория: <b>{product_list[0].category.name}</b>',
-        reply_markup=product_menu.get_product_ikb(product_list)
+    text = f'Категория: <b>{product_list[0].category.name}</b>'
+    send_reply_msg(
+        update, 
+        context, 
+        text, 
+        menu=product_menu.get_product_ikb(product_list)
         )
 
 
@@ -174,11 +175,14 @@ def quantity_handler(update, context):
         if not result:
             query.answer(text='В корзине должен быть хотя бы один товар')
 
-    context.bot.edit_message_reply_markup(
-        chat_id=query.message.chat_id,
-        message_id=context.user_data['msg_id'],
-        reply_markup=menu.product_ikb
-        )
+    try:
+        context.bot.edit_message_reply_markup(
+            chat_id=query.message.chat_id,
+            message_id=context.user_data['msg_id'],
+            reply_markup=menu.product_ikb
+            )
+    except BadRequest:
+        pass
 
 
 def update_cart(update, context):
@@ -555,10 +559,13 @@ def get_phone(update, context):
     main_menu_msg_id = context.user_data.get('main_menu_msg_id')
     if main_menu_msg_id:
         # Удаляем сообщение с основным меню
-        context.bot.delete_message(
-            chat_id=update.message.chat_id,
-            message_id=main_menu_msg_id
-            )
+        try:
+            context.bot.delete_message(
+                chat_id=update.message.chat_id,
+                message_id=main_menu_msg_id
+                )
+        except BadRequest:
+            pass
 
     # Удаляем сообщение в котором пользователь ввёл телефон
     try:
@@ -570,13 +577,14 @@ def get_phone(update, context):
         pass
 
     # Удаляем сообщение с корзиной
-    try:
-        context.bot.delete_message(
-            chat_id=update.message.chat_id,
-            message_id=context.user_data['checkout_msg_id']
-            )
-    except BadRequest:
-        pass
+    if context.user_data.get('checkout_msg_id'):
+        try:
+            context.bot.delete_message(
+                chat_id=update.message.chat_id,
+                message_id=context.user_data['checkout_msg_id']
+                )
+        except BadRequest:
+            pass
 
     # Заменяем его таким же сообщением, с главным меню
     msg = context.bot.send_message(
