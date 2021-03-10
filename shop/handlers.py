@@ -264,6 +264,17 @@ def send_reply_msg(update, context, text, menu=None, main_menu=False):
         except BadRequest:
             pass
 
+    msg_id_list = context.user_data.get('msg_id_list')
+    if msg_id_list:
+        for msg_id in msg_id_list:
+            try:
+                context.bot.delete_message(
+                    chat_id=chat_id,
+                    message_id=msg_id
+                    )
+            except BadRequest:
+                pass
+
     msg_id = context.user_data.get('msg_id')
     if msg_id:
         try:
@@ -532,10 +543,14 @@ def get_phone(update, context):
         phone = update.message.text
 
         # Если телефон валидный, то записываем его в базу
-        pattern = '((8|\+7|7)[\- ]??(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,15})'
+        pattern = '^((8|\+7|7)[\- ]??(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,15})$'
         result = re.search(pattern, phone)
         if result:
             user.phone = result.group(0).strip()
+        else:
+            msg = update.message.reply_text(msg_phone_error)
+            context.user_data['msg_id_list'] = [msg.message_id]
+            return
 
     main_menu_msg_id = context.user_data.get('main_menu_msg_id')
     if main_menu_msg_id:
