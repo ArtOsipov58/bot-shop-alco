@@ -487,6 +487,10 @@ def checkout_from_cart(update, context):
         .filter_by(user_id=user_id).first()
     text = shopping_cart.show_cart_items
 
+    if not text:
+        query.answer(text='В корзине ничего нет')
+        return
+
     msg = context.bot.send_message(
         chat_id=query.message.chat_id,
         text=text

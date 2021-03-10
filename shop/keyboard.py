@@ -91,14 +91,13 @@ class ProductMenu:
              InlineKeyboardButton(emoji_plus, callback_data='add')],
 
              [InlineKeyboardButton(btn_add_to_cart, callback_data=f'update_cart_{str(self.product.id)}')],
-             [InlineKeyboardButton(btn_checkout, callback_data='checkout_from_cart')],
+             [InlineKeyboardButton(btn_checkout_from_cart, callback_data='checkout_from_cart')],
 
             [InlineKeyboardButton(btn_back, callback_data=f'back_to_product_list_{str(self.product.category.id)}')]
             ]
         if self._product_in_cart:
             keyboard[1].append(InlineKeyboardButton(btn_delete, callback_data=f'delete_product_from_cart_{str(self.product.cart_items[0].id)}'))
         return InlineKeyboardMarkup(keyboard)
-
 
 
 class EditProductMenu(ProductMenu):
