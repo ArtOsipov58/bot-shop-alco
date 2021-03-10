@@ -58,12 +58,12 @@ class Product(Base):
     @property
     def text(self):
         img_path = IMAGES_BASE_URL + self.image
-        text = f'''Просмотр товара в категории: {self.category.name}
+        msg = f'''Просмотр товара в категории: {self.category.name}
 
 <b>{self.name}</b>
 
 <b>Цена:</b> {str(self.price)} руб.<a href="{img_path}">&#8288;</a>'''
-        return text
+        return msg
 
     def __repr__(self):
         return f'<Product {self.name}, price={str(self.price)}>'
