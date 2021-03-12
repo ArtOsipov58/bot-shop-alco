@@ -532,12 +532,14 @@ def checkout_from_cart(update, context):
     # send_reply_msg(update, context, msg_send_phone, menu=send_phone_kb())
 
 
-
 def get_phone(update, context):
     user_id = update.message.from_user.id
     Session = sessionmaker(bind=ENGINE)
     session = Session()
     user = session.query(User).filter_by(user_id=user_id).first()
+
+    logging.info(f'user_id = {str(user_id)}')
+    logging.info(f'Содержимое корзины: {user.shopping_cart.show_cart_items}')
 
     contact = update.message.contact
     if contact:
@@ -599,13 +601,15 @@ def get_phone(update, context):
     order = Order(user_id=user_id)
     session.add(order)
 
+    msg = msg_new_order(user, order, phone)
+    send_email(msg, f'Заказ {str(order.id)}')
+
+    logging.info(f'Оператору ушло следующее сообщение: {msg}')
+
     # Обнуляем корзину после оформления заказа
     for cart_item in user.shopping_cart[-1].cart_items:
         order.product_list.append(cart_item.product)
         session.delete(cart_item)
-
-    msg = msg_new_order(user, order, phone)
-    send_email(msg, f'Заказ {str(order.id)}')
 
     session.commit()
 
