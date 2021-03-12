@@ -617,6 +617,7 @@ def get_phone(update, context):
 
     order = Order(user_id=user_id)
     session.add(order)
+    session.commit()
 
     msg = msg_new_order(user, order, phone)
     send_email(msg, f'Заказ {str(order.id)}')
