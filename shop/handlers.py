@@ -556,7 +556,7 @@ def get_phone(update, context):
     user = session.query(User).filter_by(user_id=user_id).first()
 
     logging.info(f'user_id = {str(user_id)}')
-    logging.info(f'Содержимое корзины: {user.shopping_cart.show_cart_items}')
+    logging.info(f'Содержимое корзины: {user.shopping_cart[-1].show_cart_items}')
 
     contact = update.message.contact
     if contact:
