@@ -156,12 +156,25 @@ def get_product_cart(update, context):
         menu = ProductMenu(product)
 
     context.user_data['cart_menu'] = menu
-    context.bot.edit_message_text(
-        chat_id=query.message.chat_id,
-        message_id=context.user_data['msg_id'],
-        text=menu.product.text,
-        reply_markup=menu.product_ikb
-        )
+
+    msg_id = context.user_data.get('msg_id')
+    if not msg_id:
+        context.bot.send_message(
+            chat_id=query.message.chat_id,
+            text=menu.product.text,
+            reply_markup=menu.product_ikb
+            )
+        return
+
+    try:
+        context.bot.edit_message_text(
+            chat_id=query.message.chat_id,
+            message_id=context.user_data['msg_id'],
+            text=menu.product.text,
+            reply_markup=menu.product_ikb
+            )
+    except BadRequest:
+        pass
 
 
 def quantity_handler(update, context):
@@ -188,10 +201,14 @@ def quantity_handler(update, context):
 def update_cart(update, context):
     query = update.callback_query
     product_id = int(query.data.split('_')[-1])
-    menu = context.user_data['cart_menu']
 
     Session = sessionmaker(bind=ENGINE)
     session = Session()
+
+    menu = context.user_data.get('cart_menu')
+    if not menu:
+        product = session.query(Product).filter_by(id=product_id).first()
+        menu = ProductMenu(product)
 
     shopping_cart = session.query(ShoppingCart)\
         .filter_by(user_id=query.from_user.id).first()
