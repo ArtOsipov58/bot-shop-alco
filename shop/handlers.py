@@ -494,7 +494,7 @@ def checkout(update, context):
     query = update.callback_query
     chat_id = query.message.chat_id
 
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=ENGINE)
     session = Session()
 
     user = session.query(User).filter_by(user_id=chat_id).first()
