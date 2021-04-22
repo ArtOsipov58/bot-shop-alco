@@ -493,6 +493,23 @@ def checkout(update, context):
     '''
     query = update.callback_query
     chat_id = query.message.chat_id
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    user = session.query(User).filter_by(user_id=chat_id).first()
+    shopping_cart = session.query(ShoppingCart)\
+        .filter_by(user_id=chat_id).first()
+
+    logging.info('Нажал "Оформить заказ"...')
+    logging.info(f'В корзине через пользователя [-1]: {user.shopping_cart[-1].show_cart_items}')
+    logging.info(f'В корзине через пользователя [0]: {user.shopping_cart[0].show_cart_items}')
+    logging.info(f'В корзине через shopping_cart: {shopping_cart.show_cart_items}')
+
+    if not user.shopping_cart[-1].show_cart_items:
+        query.answer('Корзина пустая')
+        return 
+
     context.user_data['checkout_msg_id'] = context.user_data['msg_id']
 
     # Удаляем кнопки в сообщении с содержимым корзины
