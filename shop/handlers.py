@@ -498,13 +498,6 @@ def checkout(update, context):
     session = Session()
 
     user = session.query(User).filter_by(user_id=chat_id).first()
-    shopping_cart = session.query(ShoppingCart)\
-        .filter_by(user_id=chat_id).first()
-
-    logging.info('Нажал "Оформить заказ"...')
-    logging.info(f'В корзине через пользователя [-1]: {user.shopping_cart[-1].show_cart_items}')
-    logging.info(f'В корзине через пользователя [0]: {user.shopping_cart[0].show_cart_items}')
-    logging.info(f'В корзине через shopping_cart: {shopping_cart.show_cart_items}')
 
     if not user.shopping_cart[-1].show_cart_items:
         query.answer('Корзина пустая')
@@ -563,17 +556,15 @@ def checkout_from_cart(update, context):
     context.user_data['msg_id'] = msg.message_id
 
 
-    # send_reply_msg(update, context, msg_send_phone, menu=send_phone_kb())
-
-
 def get_phone(update, context):
     user_id = update.message.from_user.id
     Session = sessionmaker(bind=ENGINE)
     session = Session()
     user = session.query(User).filter_by(user_id=user_id).first()
 
-    logging.info(f'user_id = {str(user_id)}')
-    logging.info(f'Содержимое корзины: {user.shopping_cart[-1].show_cart_items}')
+    if not user.shopping_cart[-1].show_cart_items:
+        update.message.reply_text(msg_error_order)
+        return
 
     contact = update.message.contact
     if contact:
@@ -638,8 +629,6 @@ def get_phone(update, context):
 
     msg = msg_new_order(user, order, phone)
     send_email(msg, f'Заказ {str(order.id)}')
-
-    logging.info(f'Оператору ушло следующее сообщение: {msg}')
 
     # Обнуляем корзину после оформления заказа
     for cart_item in user.shopping_cart[-1].cart_items:
@@ -718,4 +707,4 @@ def not_anderstand(update, context):
         chat_id=update.message.chat_id,
         message_id=update.message.message_id
         )
-    send_reply_msg(update, context, msg_not_anderstand)
+    update.message.reply_text(msg_not_anderstand)
