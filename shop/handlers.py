@@ -714,4 +714,8 @@ def check_photo(context):
 
 
 def not_anderstand(update, context):
-    update.message.reply_text(msg_not_anderstand)
+    context.bot.delete_message(
+        chat_id=update.message.chat_id,
+        message_id=update.message.message_id
+        )
+    send_reply_msg(update, context, msg_not_anderstand)
