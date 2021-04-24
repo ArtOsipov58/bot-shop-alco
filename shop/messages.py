@@ -58,3 +58,5 @@ def msg_new_order(user, order, phone):
 
 Заказ оформил {user.first_name}, телефон: {phone}'''
     return text
+
+msg_not_anderstand = 'Пожалуйста, используйте кнопки бота для заказа. В чат пишите только если бот задал вопрос'

@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from telegram import InlineKeyboardMarkup
 from telegram.error import BadRequest
 
-from config import ENGINE, IMAGES_BASE_URL
+from config import ENGINE, IMAGES_BASE_URL, PHONE_PATTERN
 from shop.keyboard import *
 from shop.messages import *
 from shop.models import CartItem, Order, Product, ShoppingCart, User
@@ -583,8 +583,8 @@ def get_phone(update, context):
         phone = update.message.text
 
         # Если телефон валидный, то записываем его в базу
-        pattern = '^((8|\+7|7)[\- ]??(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,15})$'
-        result = re.search(pattern, phone)
+
+        result = re.search(PHONE_PATTERN, phone)
         if result:
             user.phone = result.group(0).strip()
         else:
@@ -711,3 +711,7 @@ def check_photo(context):
         except requests.RequestException:
             pass
     logging.info('Сделали регулярную проверку всех фото')
+
+
+def not_anderstand(update, context):
+    update.message.reply_text(msg_not_anderstand)
