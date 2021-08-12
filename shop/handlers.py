@@ -213,10 +213,6 @@ def update_cart(update, context):
     shopping_cart = session.query(ShoppingCart)\
         .filter_by(user_id=query.from_user.id).first()
 
-    # import ipdb; ipdb.set_trace()
-
-
-
     if session.query(CartItem).filter_by(product_id=product_id)\
         .count() == 0:
         cart_item = CartItem(
@@ -233,9 +229,6 @@ def update_cart(update, context):
         shopping_cart.cart_items.append(cart_item)
     session.commit()
 
-
-
-
     query.answer('Товар добавлен в корзину')
 
     try:
@@ -246,7 +239,6 @@ def update_cart(update, context):
             )
     except BadRequest:
         pass
-
 
 
 def show_cart_handl(update, context):
@@ -360,7 +352,6 @@ def back_to_cart(update, context):
     cart_item = session.query(CartItem)\
         .filter_by(product_id=product_id).first()
     cart_item.quantity = menu.quantity
-
 
     shopping_cart = session.query(ShoppingCart)\
         .filter_by(user_id=user_id).first()
@@ -537,10 +528,6 @@ def checkout_from_cart(update, context):
     shopping_cart = session.query(ShoppingCart)\
         .filter_by(user_id=user_id).first()
     text = shopping_cart.show_cart_items
-
-
-    logging.info(f'text = {str(text)}')
-
 
     if not text:
         query.answer(text='В корзине ничего нет')
