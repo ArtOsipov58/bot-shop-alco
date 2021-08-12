@@ -228,9 +228,7 @@ def update_cart(update, context):
         cart_item.quantity = menu.quantity
     session.commit()
 
-
-    logging.info(f'cart_item.quantity = {cart_item.quantity}')
-    logging.info(f'cart_item.product = {cart_item.product.name}')
+    import ipdb; ipdb.set_trace()
 
 
     query.answer('Товар добавлен в корзину')
