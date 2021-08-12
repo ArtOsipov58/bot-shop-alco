@@ -228,6 +228,11 @@ def update_cart(update, context):
         cart_item.quantity = menu.quantity
     session.commit()
 
+
+    logging.info(f'cart_item.quantity = {cart_item.quantity}')
+    logging.info(f'cart_item.product = {cart_item.product.name}')
+
+
     query.answer('Товар добавлен в корзину')
 
     try:
@@ -238,6 +243,7 @@ def update_cart(update, context):
             )
     except BadRequest:
         pass
+
 
 
 def show_cart_handl(update, context):
