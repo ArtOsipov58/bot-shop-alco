@@ -213,6 +213,10 @@ def update_cart(update, context):
     shopping_cart = session.query(ShoppingCart)\
         .filter_by(user_id=query.from_user.id).first()
 
+    import ipdb; ipdb.set_trace()
+
+
+
     if session.query(CartItem).filter_by(product_id=product_id)\
         .count() == 0:
         cart_item = CartItem(
@@ -228,7 +232,7 @@ def update_cart(update, context):
         cart_item.quantity = menu.quantity
     session.commit()
 
-    import ipdb; ipdb.set_trace()
+
 
 
     query.answer('Товар добавлен в корзину')
