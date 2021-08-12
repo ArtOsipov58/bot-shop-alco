@@ -213,7 +213,7 @@ def update_cart(update, context):
     shopping_cart = session.query(ShoppingCart)\
         .filter_by(user_id=query.from_user.id).first()
 
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
 
 
 
@@ -230,6 +230,7 @@ def update_cart(update, context):
         cart_item = session.query(CartItem)\
             .filter_by(product_id=product_id).first()
         cart_item.quantity = menu.quantity
+        shopping_cart.cart_items.append(cart_item)
     session.commit()
 
 
