@@ -50,14 +50,15 @@ msg_phone_error = 'Возможно, Вы ввели некорректный н
 
 
 def msg_new_order(user, order, phone):
-    text = f'''Заказ {str(order.id)}:
+    text = f'''Заказ {order.id}:
 
 {user.shopping_cart[-1].shopping_cart_content}
 
-Сумма без доставки: {str(user.shopping_cart[-1].full_sum)} руб.
+Сумма без доставки: {user.shopping_cart[-1].full_sum} руб.
 
 Заказ оформил {user.first_name}, телефон: {phone}'''
     return text
+
 
 msg_not_anderstand = 'Пожалуйста, используйте кнопки бота для заказа. В чат пишите только если бот задал вопрос'
 

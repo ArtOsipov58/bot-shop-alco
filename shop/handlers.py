@@ -19,8 +19,8 @@ from shop.utils import import_price, send_email
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s',
-    level = logging.INFO,
-    filename = 'log.log'
+    level=logging.INFO,
+    filename='log.log'
     )
 
 
@@ -93,8 +93,6 @@ def select_category(update, context):
     text = 'Выберите категорию'
 
     send_reply_msg(update, context, text, menu=menu.get_cat_ikb())
-
-
 
 
 def get_products_list(update, context):
@@ -214,7 +212,7 @@ def update_cart(update, context):
         .filter_by(user_id=query.from_user.id).first()
 
     if session.query(CartItem).filter_by(product_id=product_id)\
-        .count() == 0:
+            .count() == 0:
         cart_item = CartItem(
             product_id=product_id,
             quantity=menu.quantity,
@@ -546,7 +544,6 @@ def checkout_from_cart(update, context):
             )
     except BadRequest:
         pass
-
 
     msg = context.bot.send_message(
         chat_id=query.message.chat_id,

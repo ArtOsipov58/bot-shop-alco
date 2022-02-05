@@ -1,16 +1,9 @@
-import os
-import sys
-parent_dir = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(os.path.dirname(parent_dir))
-
-
-
 from datetime import datetime
 
-from sqlalchemy import (Table, Column, Integer, Numeric, 
+from sqlalchemy import (Table, Column, Integer,
                         String, DateTime, ForeignKey) 
 from sqlalchemy.ext.declarative import declarative_base 
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship
 from config import IMAGES_BASE_URL
 
 Base = declarative_base()
@@ -97,13 +90,17 @@ class ShoppingCart(Base):
     def show_cart_items(self):
         if not self.cart_items:
             return False
-        return f'Сейчас в Вашей корзине:\n\n{self.shopping_cart_content}\nСумма без доставки: {str(self.full_sum)} руб.'
+        return 'Сейчас в Вашей корзине:\n\n'\
+               f'{self.shopping_cart_content}\n'\
+               f'Сумма без доставки: {self.full_sum} руб.'
 
     @property
     def shopping_cart_content(self):
         text = ''
         for cart_item in self.cart_items:
-            text += f'{cart_item.product.name}: {str(cart_item.product.price)} руб. x {str(cart_item.quantity)}\n'
+            text += f'{cart_item.product.name}: '\
+                    f'{cart_item.product.price} руб. x '\
+                    f'{cart_item.quantity}\n'
         return text
 
     @property

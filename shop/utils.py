@@ -1,12 +1,7 @@
 import os
-import sys
-parent_dir = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(os.path.dirname(parent_dir))
-
 
 from email.mime.text import MIMEText
 from email.header import Header
-import os
 import smtplib
 
 import pandas as pd
@@ -35,7 +30,7 @@ def import_price(price_path):
             row['Группы'] = row['Группы'].replace('Нужное/', '')
 
         if session.query(Category).filter_by(name=row['Группы'])\
-            .count() == 0:
+                .count() == 0:
             category = Category(name=row['Группы'])
             session.add(category)
     session.commit()
@@ -71,7 +66,9 @@ def import_price(price_path):
             # Если товар есть в базе, то обновляем инфу
             product = query.first()
             product.name = row['Наименование']
-            product.price = int(float(row['Цена: Цена продажи'].replace(',', '.')))
+            product.price = int(
+                float(row['Цена: Цена продажи'].replace(',', '.'))
+                )
             product.image = str(int(row['Артикул'])) + '.jpg'
 
     set_category_order(session)
@@ -81,15 +78,19 @@ def import_price(price_path):
 def send_email(message, subject):
     msg = MIMEText(message, 'plain', 'utf-8')
     msg['Subject'] = Header(subject, 'utf-8')
-    msg['From'] = config.EMAIL_LOGIN
-    msg['To'] = config.RECIPIENT_EMAIL
+    msg['From'] = os.environ.get('EMAIL_LOGIN')
+    msg['To'] = os.environ.get('RECIPIENT_EMAIL')
 
-    s = smtplib.SMTP(config.HOST, config.PORT, timeout=10)
+    s = smtplib.SMTP(os.environ.get('HOST'), 
+                     os.environ.get('PORT'), 
+                     timeout=10)
 
     try:
         s.starttls()
-        s.login(config.EMAIL_LOGIN, config.EMAIL_PASSWD)
-        s.sendmail(msg['From'], config.RECIPIENT_EMAIL, msg.as_string())
+        s.login(os.environ.get('EMAIL_LOGIN'), os.environ.get('EMAIL_PASSWD'))
+        s.sendmail(msg['From'], 
+                   os.environ.get('RECIPIENT_EMAIL'), 
+                   msg.as_string())
     finally:
         s.quit()
 
