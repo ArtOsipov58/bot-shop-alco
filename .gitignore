@@ -1,4 +1,3 @@
-bot.py
 .env
 config.py
 tz/
@@ -10,5 +9,3 @@ venv/
 *.xlsx
 __pycache__/
 *.log
-
-
