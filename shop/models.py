@@ -44,7 +44,7 @@ class Product(Base):
     name = Column(String(100), nullable=False)
     price = Column(Integer, nullable=False)
     artikul = Column(Integer, unique=True)
-    image = Column(String(50))
+    image = Column(String)
     cat_id = Column(Integer, ForeignKey('category.id'))
 
     category = relationship('Category', back_populates='product_list')
@@ -123,7 +123,9 @@ class CartItem(Base):
     created_date = Column(DateTime, default=datetime.now())
     shopping_cart_id = Column(Integer, ForeignKey('shopping_cart.id'))
 
-    shopping_cart = relationship('ShoppingCart', back_populates='cart_items')
+    shopping_cart = relationship('ShoppingCart', 
+                                 back_populates='cart_items',
+                                 uselist=False)
     product = relationship('Product', back_populates='cart_items')
 
     @classmethod
